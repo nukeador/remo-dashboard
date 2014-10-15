@@ -1,0 +1,75 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<main role="main" class="events-main">
+  <div class="row">
+    <div class="large-12 columns align-left">
+    <h1>Reps Dashboard</h1>
+        
+    <h2>Mentors ({{ mentors|length }})</h2>
+
+    <div id="dashboard-br-my-block" class="large-12 columns">
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+              <th class="dashboard-clickable type-int">Mentees</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for mentor in mentors %}
+            <tr>
+                <td><a href="{{ mentor.url }}">{{ mentor.name }}</a></td>
+                <td>{{ mentor.mentees|length }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <h2>Orphans ({{ orphans|length }})</h2>
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+              <th class="dashboard-clickable type-int">Mentor</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for orphan in orphans %}
+            <tr>
+                <td><a href="{{ mentor.url }}">{{ orphan.name }}</a></td>
+                <td>{{ orphan.mentor }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <h2>Self mentors ({{ selfmentor|length }})</h2>
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for rep in selfmentor %}
+            <tr>
+                <td><a href="{{ rep.url }}">{{ rep.name }}</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    </div>
+  </div>
+</main>
+{% endblock %}
