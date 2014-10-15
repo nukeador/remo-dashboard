@@ -2,9 +2,7 @@
 *.pid
 true
 cache
-__init__.py
 settings_local.py
-migrations
 /static
 /bin/
 /include/
