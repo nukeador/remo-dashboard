@@ -22,7 +22,7 @@
             {% for mentor in mentors %}
             <tr>
                 <td><a href="{{ mentor.url }}">{{ mentor.name }}</a></td>
-                <td>{{ mentor.mentees|length }}</td>
+                <td><a href="#{{ mentor.name|slugify }}">{{ mentor.mentees|length }}</a></td>
             </tr>
             {% endfor %}
             </tbody>
@@ -42,7 +42,7 @@
           <tbody id="table-search-list">
             {% for orphan in orphans %}
             <tr>
-                <td><a href="{{ mentor.url }}">{{ orphan.name }}</a></td>
+                <td><a href="{{ orphan.url }}">{{ orphan.name }}</a></td>
                 <td>{{ orphan.mentor }}</td>
             </tr>
             {% endfor %}
@@ -67,6 +67,32 @@
             {% endfor %}
             </tbody>
         </table>
+    </div>
+    
+    <h2>Mentees</h2>
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+        
+        {% for mentor in mentors %}
+        
+        <h3 id="{{ mentor.name|slugify }}"><a href="{{ mentor.url }}">{{ mentor.name }}</a> ({{ mentor.mentees|length }})</h3>
+        
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for rep in mentor.mentees %}
+            <tr>
+                <td><a href="{{ rep.url }}">{{ rep.name }}</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        
+        {% endfor %}
     </div>
     
     </div>
