@@ -1,39 +1,25 @@
 # coding=utf-8
 
-import requests
 import json
+import time
 
-from os.path import dirname, join, realpath
+from os.path import dirname, join, realpath, getmtime
 
 from django.http import HttpResponse
 from django.shortcuts import render
 
 PROJECT_PATH = realpath(join(dirname(__file__), '..'))
-
-BASE_URL = 'https://reps.mozilla.org'
-URL = '/api/v1/rep/?format=json&limit=0'
 FILE = PROJECT_PATH + '/reps.json'
-# Define if we want to fetch remote data, if not, local FILE
-# will be used
-REMOTE = False
 
 # Create your views here.
 
 def home(request):
     
     entries = []
-    new_url = URL
-    
-    if REMOTE:
-        response = requests.get(BASE_URL + new_url, verify=False)
-        
-        if not response.status_code == 200:
-            raise ValueError('Invalid Response')
 
-        data = response.json()
-    else:
-        response = open(FILE)
-        data = json.load(response)
+    response = open(FILE)
+    data = json.load(response)
+    data_updated = time.ctime(getmtime(FILE))
     
     mentors = []
     orphans = []
@@ -77,5 +63,11 @@ def home(request):
                         'mentor': mentor['fullname']
                     })
     
-    context = {'mentors': mentors, 'orphans': orphans, 'selfmentor': selfmentor}
+    context = {
+        'updated': data_updated,
+        'mentors': mentors,
+        'orphans': orphans,
+        'selfmentor': selfmentor
+    }
+
     return render(request, 'dashboard/home.html', context)

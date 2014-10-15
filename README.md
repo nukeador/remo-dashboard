@@ -25,6 +25,12 @@ You'll need to install python packages used in this project. These are in ``requ
 The best way to install these packages is using ``pip``:
 
     $ pip install -r requirements.txt
+    
+Fetch the latest profile data:
+    
+    $ python manage.py fetch_data profiles
+    
+You can set a cron to have this done daily.
 
 Run the testserver
 
