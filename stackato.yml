@@ -5,6 +5,13 @@ ignores:
   - "*.pyc"
   - "*.pyo"
   - "*.swp"
+  - "settings_local.py"
+  - "/static"
+  - "/bin/"
+  - "/include/"
+  - "/lib/"
+  - "/local/"
+  - "/man/"
   - "*~"
 
 env:
@@ -26,4 +33,4 @@ framework:
   runtime: python27
   
 cron:
-  - "* */3 * * * python $HOME/remo_dashboard/manage.py fetch_data profiles"
+  - "* */3 * * * python remo_dashboard/manage.py fetch_data profiles"
