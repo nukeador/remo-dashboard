@@ -1,0 +1,29 @@
+name: remo-dashboard
+
+ignores:
+  - ".git"
+  - "*.pyc"
+  - "*.pyo"
+  - "*.swp"
+  - "*~"
+
+env:
+  DJANGO_SETTINGS_MODULE: remo_dashboard.settings
+  PIP_REQUIREMENTS_FILE: requirements.txt
+
+mem: 64M
+
+processes:
+    web: $STACKATO_UWSGI --static-map /static=$HOME/remo_dashboard/static/
+
+hooks:
+  post-staging:
+    - python manage.py fetch_data profiles
+
+framework:
+  type: python
+  start-file: remo_dashboard/wsgi.py
+  runtime: python27
+  
+cron:
+  - "* */3 * * * python $HOME/remo_dashboard/manage.py fetch_data profiles"
