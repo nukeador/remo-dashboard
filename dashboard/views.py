@@ -38,11 +38,14 @@ def home(request):
                     mentees.append({
                         'name': mentee['fullname'],
                         'url': mentee['profile']['profile_url'],
+                        'avatar': mentee['profile']['avatar_url'],
+                        'country': mentee['profile']['country'],
                     })
             
             mentors.append({
                 'name': rep['fullname'],
                 'url': rep['profile']['profile_url'],
+                'avatar': rep['profile']['avatar_url'],
                 'mentees': mentees
                 })
             
@@ -63,11 +66,17 @@ def home(request):
                         'mentor': mentor['fullname']
                     })
     
+    # Total mentees and average
+    mentees_total = len(data['objects'])
+    mentees_avg =  mentees_total / len(mentors)
+    
     context = {
         'updated': data_updated,
         'mentors': mentors,
         'orphans': orphans,
-        'selfmentor': selfmentor
+        'selfmentor': selfmentor,
+        'total': mentees_total,
+        'average': mentees_avg
     }
 
     return render(request, 'dashboard/home.html', context)

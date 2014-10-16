@@ -10,9 +10,19 @@
     
     <p class="align-right">Data updated: {{ updated }}</p>
     
-    <h2>Mentors ({{ mentors|length }})</h2>
+    <ul>
+        <li><a href="#mentors">Mentors</a></li>
+        <li><a href="#orphans">Orphans</a></li>
+        <li><a href="#selfmentors">Self mentors</a></li>
+        <li><a href="#mentees">Mentees</a></li>
+    </ul>
+    
+    <h2 id="mentors">Mentors ({{ mentors|length }})</h2>
 
-    <div id="dashboard-br-my-block" class="large-12 columns">
+    <p>Total mentees: {{ total }}</p>
+    <p>Mentees average: {{ average }}</p>
+    
+    <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
         <table class="dashboard-table responsive on">
           <thead>
             <tr>
@@ -24,14 +34,14 @@
             {% for mentor in mentors %}
             <tr>
                 <td><a href="{{ mentor.url }}">{{ mentor.name }}</a></td>
-                <td><a href="#{{ mentor.name|slugify }}">{{ mentor.mentees|length }}</a></td>
+                <td {% if mentor.mentees|length > average %}class="inactive-low"{% endif %}><a href="#{{ mentor.name|slugify }}">{{ mentor.mentees|length }}</a></td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
     
-    <h2>Orphans ({{ orphans|length }})</h2>
+    <h2 id="orphans">Orphans ({{ orphans|length }})</h2>
     
     <div id="dashboard-br-my-block" class="large-12 columns">
         <table class="dashboard-table responsive on">
@@ -52,7 +62,7 @@
         </table>
     </div>
     
-    <h2>Self mentors ({{ selfmentor|length }})</h2>
+    <h2 id="selfmentors">Self mentors ({{ selfmentor|length }})</h2>
     
     <div id="dashboard-br-my-block" class="large-12 columns">
         <table class="dashboard-table responsive on">
@@ -71,24 +81,26 @@
         </table>
     </div>
     
-    <h2>Mentees</h2>
+    <h2 id="mentees">Mentees</h2>
     
     <div id="dashboard-br-my-block" class="large-12 columns">
         
         {% for mentor in mentors %}
         
-        <h3 id="{{ mentor.name|slugify }}"><a href="{{ mentor.url }}">{{ mentor.name }}</a> ({{ mentor.mentees|length }})</h3>
+        <h3 id="{{ mentor.name|slugify }}"><img src="{{ mentor.avatar }}" alt="{{ mentor.name }}" /> <a href="{{ mentor.url }}">{{ mentor.name }}</a> ({{ mentor.mentees|length }})</h3>
         
         <table class="dashboard-table responsive on">
           <thead>
             <tr>
               <th class="dashboard-clickable type-string">Full Name</th>
+              <th class="dashboard-clickable type-string">Country</th>
             </tr>
           </thead>
           <tbody id="table-search-list">
             {% for rep in mentor.mentees %}
             <tr>
                 <td><a href="{{ rep.url }}">{{ rep.name }}</a></td>
+                <td>{{ rep.country }}</td>
             </tr>
             {% endfor %}
             </tbody>
