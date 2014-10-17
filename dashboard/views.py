@@ -58,6 +58,16 @@ def home(request):
 
         else:
             # Check if his mentor is a mentor
+            
+            # If mentor was deleted (not in the current Reps list)
+            if not any(rep_mentor in rep['resource_uri'] for rep in data['objects']):
+                orphans.append({
+                    'name': rep['fullname'],
+                    'url': rep['profile']['profile_url'],
+                    'mentor': rep_mentor
+                })
+                    
+            # If mentor is no longer a mentor
             for mentor in data['objects']:
                 if mentor['resource_uri'] == rep_mentor and not mentor['profile']['is_mentor']:
                     orphans.append({
