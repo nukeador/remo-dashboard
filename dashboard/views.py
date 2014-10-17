@@ -64,7 +64,7 @@ def home(request):
                 orphans.append({
                     'name': rep['fullname'],
                     'url': rep['profile']['profile_url'],
-                    'mentor': rep_mentor
+                    'mentor': 'No longer in the program'
                 })
                     
             # If mentor is no longer a mentor
