@@ -33,4 +33,4 @@ framework:
   runtime: python27
   
 cron:
-  - "* */3 * * * python remo_dashboard/manage.py fetch_data profiles"
+  - "* */6 * * * python $HOME/manage.py fetch_data profiles"
