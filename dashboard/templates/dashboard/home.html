@@ -8,21 +8,24 @@
     <div class="large-12 columns align-left">
     <h1 id="title">Reps Dashboard</h1>
     
-    <p class="align-right">Data updated: {{ updated }}</p>
+    <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
+        <p class="align-right">Data updated: {{ updated }}</p>
     
-    <ul>
-        <li><a href="#mentors">Mentors</a></li>
-        <li><a href="#orphans">Orphans</a></li>
-        <li><a href="#selfmentors">Self mentors</a></li>
-        <li><a href="#mentees">Mentees</a></li>
-    </ul>
-    
-    <h2 id="mentors">Mentors ({{ mentors|length }})</h2>
-
-    <p>Total mentees: {{ total }}</p>
-    <p>Mentees average: {{ average }}</p>
+        <ul>
+            <li><a href="#mentors">Mentors</a></li>
+            <li><a href="#orphans">Orphans</a></li>
+            <li><a href="#selfmentors">Self mentors</a></li>
+            <li><a href="#mentees">Mentees</a></li>
+        </ul>
+    </div>
     
     <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
+        
+        <h2 id="mentors">Mentors ({{ mentors|length }})</h2>
+
+        <p>Total mentees: {{ total }}</p>
+        <p>Mentees average: {{ average }}</p>
+    
         <table class="dashboard-table responsive on">
           <thead>
             <tr>
@@ -41,9 +44,10 @@
         </table>
     </div>
     
-    <h2 id="orphans">Orphans ({{ orphans|length }})</h2>
-    
     <div id="dashboard-br-my-block" class="large-12 columns">
+        
+        <h2 id="orphans">Orphans ({{ orphans|length }})</h2>
+        
         <table class="dashboard-table responsive on">
           <thead>
             <tr>
@@ -62,9 +66,10 @@
         </table>
     </div>
     
-    <h2 id="selfmentors">Self mentors ({{ selfmentor|length }})</h2>
-    
     <div id="dashboard-br-my-block" class="large-12 columns">
+        
+        <h2 id="selfmentors">Self mentors ({{ selfmentor|length }})</h2>
+        
         <table class="dashboard-table responsive on">
           <thead>
             <tr>
@@ -81,10 +86,12 @@
         </table>
     </div>
     
-    <h2 id="mentees">Mentees</h2>
+   
     
     <div id="dashboard-br-my-block" class="large-12 columns">
         
+        <h2 id="mentees">Mentees</h2>
+         
         {% for mentor in mentors %}
         
         <h3 id="{{ mentor.name|slugify }}"><img src="{{ mentor.avatar }}" alt="{{ mentor.name }}" /> <a href="{{ mentor.url }}">{{ mentor.name }}</a> ({{ mentor.mentees|length }})</h3>

@@ -5,6 +5,7 @@ import time
 
 from os.path import dirname, join, realpath, getmtime
 
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
 
