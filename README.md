@@ -26,6 +26,12 @@ The best way to install these packages is using ``pip``:
 
     $ pip install -r requirements.txt
     
+Init database:
+
+    $ python manage.py makemigrations
+    $ python manage.py migrate
+    $ python manage.py syncdb
+    
 Fetch the initial profile data, first mentors, then the rest:
     
     $ python manage.py fetch_data init_mentors

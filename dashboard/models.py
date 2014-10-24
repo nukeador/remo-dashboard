@@ -45,4 +45,4 @@ class Rep(models.Model):
     mentees = property(mentees)
     
     def __unicode__(self):
-        return self._get_full_name()
+        return self.full_name
