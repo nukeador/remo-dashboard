@@ -8,6 +8,9 @@ from os.path import dirname, join, realpath, getmtime
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.db.models import F
+
+from dashboard.models import Rep
 
 PROJECT_PATH = realpath(join(dirname(__file__), '..'))
 FILE = PROJECT_PATH + '/reps.json'
@@ -91,3 +94,31 @@ def home(request):
     }
 
     return render(request, 'dashboard/home.html', context)
+
+def home2(request):
+    
+    entries = []
+
+    response = open(FILE)
+    data_updated = time.ctime(getmtime(FILE))
+    
+    mentors = Rep.objects.filter(is_mentor=True, deleted=False).order_by('first_name')
+    mentees = Rep.objects.filter(deleted=False).order_by('first_name')
+    orphans = Rep.objects.filter(mentor=None, deleted=False).order_by('first_name')
+    # FIXME: Query for mentors that are no longer mentors
+    selfmentor = Rep.objects.filter(mentor=F('id'), deleted=False).order_by('first_name')
+    
+    # Total mentees and average
+    mentees_total = mentees.count()
+    mentees_avg =  mentees_total / mentors.count()
+    
+    context = {
+        'updated': data_updated,
+        'mentors': mentors,
+        'orphans': orphans,
+        'selfmentor': selfmentor,
+        'total': mentees_total,
+        'average': mentees_avg
+    }
+
+    return render(request, 'dashboard/home2.html', context)

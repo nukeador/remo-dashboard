@@ -20,12 +20,12 @@ class Rep(models.Model):
     updated_date = models.DateTimeField()
     
     
-    def _get_full_name(self):
+    def full_name(self):
         "Returns the rep's full name."
         return '%s %s' % (self.first_name, self.last_name)
-    full_name = property(_get_full_name)
+    full_name = property(full_name)
     
-    def _get_status(self):
+    def status(self):
         '''
             Returns rep status based on last activity
             https://wiki.mozilla.org/Contribute/Conversion_points#Reps
@@ -36,7 +36,13 @@ class Rep(models.Model):
             return "Casual"
         else:
             return "Inactive"
-        status = property(_get_status)
+    status = property(status)
+    
+    def mentees(self):
+        "Returns rep mentess."
+        mentees = Rep.objects.filter(mentor=self.id, deleted=False)
+        return mentees
+    mentees = property(mentees)
     
     def __unicode__(self):
         return self._get_full_name()
