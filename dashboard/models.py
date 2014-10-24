@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 
@@ -10,7 +12,7 @@ class Rep(models.Model):
     is_council = models.BooleanField(default=False)
     avatar_url = models.URLField(max_length=100)
     profile_url = models.URLField(max_length=100)
-    mentor = models.CharField(max_length=100)
+    mentor = models.ForeignKey('self', blank=True, null=True)
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     last_report_date = models.DateField()
@@ -23,6 +25,18 @@ class Rep(models.Model):
         return '%s %s' % (self.first_name, self.last_name)
     full_name = property(_get_full_name)
     
+    def _get_status(self):
+        '''
+            Returns rep status based on last activity
+            https://wiki.mozilla.org/Contribute/Conversion_points#Reps
+        '''
+        if (datetime.date.today() - self.last_report_date) < datetime.timedelta(31):
+            return 'Active'
+        elif (datetime.date.today() - self.last_report_date) < datetime.timedelta(57):
+            return "Casual"
+        else:
+            return "Inactive"
+        status = property(_get_status)
     
     def __unicode__(self):
         return self._get_full_name()

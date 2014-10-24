@@ -26,11 +26,14 @@ The best way to install these packages is using ``pip``:
 
     $ pip install -r requirements.txt
     
-Fetch the latest profile data:
+Fetch the initial profile data, first mentors, then the rest:
     
-    $ python manage.py fetch_data profiles
+    $ python manage.py fetch_data init_mentors
+    $ python manage.py fetch_data update
     
-You can set a cron to have this done daily.
+You can set a cron to update this data daily:
+
+    $ python manage.py fetch_data update
 
 Run the testserver
 

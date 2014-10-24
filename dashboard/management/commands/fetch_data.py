@@ -35,19 +35,19 @@ class Command(BaseCommand):
                 json.dump(data, outfile)
             
             # to database
-            reps = Rep.objects.filter(deleted=False).order_by('first_name')
-            
-            # check if someone was deleted from portal
-            for rep in reps:
-                if not any(rep.uri in d['resource_uri'] for d in data['objects']):
-                    rep.deleted = True
-                    rep.save()
-                    print '%s is not longer on the portal, marking as deleted' % rep.full_name
+            reps = Rep.objects.filter(deleted=False).order_by('uri')
                     
             # Updating fields from data fetched
             for d in data['objects']:
+                
+                # Get mentor id
                 try:
-                    # If it's already on the database
+                    mentor = Rep.objects.get(uri=d['profile']['mentor'])
+                except Rep.DoesNotExist:
+                    mentor = None
+                    
+                try:
+                    # If it's already on the database, update data
                     r = Rep.objects.get(uri=d['resource_uri'], deleted=False)
                     
                     r.first_name = d['first_name']
@@ -56,7 +56,7 @@ class Command(BaseCommand):
                     r.is_council = d['profile']['is_council']
                     r.avatar_url = d['profile']['avatar_url']
                     r.profile_url = d['profile']['profile_url']
-                    r.mentor = d['profile']['mentor']
+                    r.mentor = mentor
                     r.country = d['profile']['country']
                     r.city = d['profile']['city']
                     r.last_report_date = datetime.date.today() #FIXME
@@ -73,17 +73,24 @@ class Command(BaseCommand):
                         is_council = d['profile']['is_council'],
                         avatar_url = d['profile']['avatar_url'],
                         profile_url = d['profile']['profile_url'],
-                        mentor = d['profile']['mentor'],
+                        mentor = mentor,
                         country = d['profile']['country'],
                         city = d['profile']['city'],
                         last_report_date = datetime.date.today(), #FIXME
                         updated_date = timezone.now(),
                     )
                     r.save()
+                    
+                # check if someone was deleted from portal
+                for rep in reps:
+                    if not any(rep.uri in d['resource_uri'] for d in data['objects']):
+                        rep.deleted = True
+                        rep.save()
+                        print '%s is not longer on the portal, marking as deleted' % rep.full_name
             
             self.stdout.write('Profiles data updated')
         
-        if 'init' in args:
+        if 'init_mentors' in args:
             
             response = requests.get(BASE_URL + URL, verify=False)
         
@@ -92,26 +99,25 @@ class Command(BaseCommand):
 
             data = response.json()
             
-            # to local file
-            with open(FILE, "w") as outfile:
-                json.dump(data, outfile)
+            # Create mentors
             
-            # to database
             for rep in data['objects']:
-                r = Rep(
-                    uri = rep['resource_uri'],
-                    first_name = rep['first_name'],
-                    last_name = rep['last_name'],
-                    is_mentor = rep['profile']['is_mentor'],
-                    is_council = rep['profile']['is_council'],
-                    avatar_url = rep['profile']['avatar_url'],
-                    profile_url = rep['profile']['profile_url'],
-                    mentor = rep['profile']['mentor'],
-                    country = rep['profile']['country'],
-                    city = rep['profile']['city'],
-                    last_report_date = datetime.date.today(), #FIXME
-                    updated_date = timezone.now(),
-                )
-                r.save()
                 
-            self.stdout.write('Profiles data fetched to %s' % FILE)
+                if rep['profile']['is_mentor']:
+                    r = Rep(
+                        uri = rep['resource_uri'],
+                        first_name = rep['first_name'],
+                        last_name = rep['last_name'],
+                        is_mentor = rep['profile']['is_mentor'],
+                        is_council = rep['profile']['is_council'],
+                        avatar_url = rep['profile']['avatar_url'],
+                        profile_url = rep['profile']['profile_url'],
+                        mentor = None,
+                        country = rep['profile']['country'],
+                        city = rep['profile']['city'],
+                        last_report_date = datetime.date.today(), #FIXME
+                        updated_date = timezone.now(),
+                    )
+                    r.save()
+                
+            self.stdout.write('Mentors data fetched. Please run manage.py fetch_data update')
