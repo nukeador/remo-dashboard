@@ -18,13 +18,19 @@ env:
   DJANGO_SETTINGS_MODULE: remo_dashboard.settings
   PIP_REQUIREMENTS_FILE: requirements.txt
 
-mem: 64M
+mem: 128M
 
 processes:
     web: $STACKATO_UWSGI --static-map /static=$HOME/remo_dashboard/static/
 
+services:
+    remo-dashboard: filesystem
+    
 hooks:
   post-staging:
+    - python manage.py syncdb --noinput
+    - python manage.py collectstatic --noinput
+    - python manage.py migrate --noinput
     - python manage.py fetch_data profiles
 
 framework:
