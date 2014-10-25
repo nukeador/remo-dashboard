@@ -10,8 +10,8 @@ class Rep(models.Model):
     last_name = models.CharField(max_length=100)
     is_mentor = models.BooleanField(default=False)
     is_council = models.BooleanField(default=False)
-    avatar_url = models.URLField(max_length=100)
-    profile_url = models.URLField(max_length=100)
+    avatar_url = models.URLField(max_length=500)
+    profile_url = models.URLField(max_length=500)
     mentor = models.ForeignKey('self', blank=True, null=True)
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
@@ -46,3 +46,17 @@ class Rep(models.Model):
     
     def __unicode__(self):
         return self.full_name
+    
+class Stat(models.Model):
+    """ Model to store scheduled stats """
+    
+    date = models.DateTimeField()
+    reps = models.IntegerField()
+    active = models.IntegerField()
+    casual = models.IntegerField()
+    inactive = models.IntegerField()
+    orphans = models.IntegerField()
+    mentors = models.IntegerField()
+    
+    def __unicode__(self):
+        return str(self.date)

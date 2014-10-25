@@ -9,5 +9,5 @@ settings_local.py
 /lib/
 /local/
 /man/
-db.sqlite3
+/data/
 reps.json

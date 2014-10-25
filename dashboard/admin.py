@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from dashboard.models import Rep
+from dashboard.models import Rep, Stat
 
 class RepAdmin(admin.ModelAdmin):
     model = Rep
@@ -10,3 +10,4 @@ class RepAdmin(admin.ModelAdmin):
     search_fields = ['first_name', 'last_name']
     
 admin.site.register(Rep, RepAdmin)
+admin.site.register(Stat)

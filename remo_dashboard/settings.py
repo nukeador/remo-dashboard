@@ -12,14 +12,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-FILESYSTEM = BASE_DIR
-
-# If Stackato, move the filesystem directory
-STACKATO = 'VCAP_APPLICATION' in os.environ
-if STACKATO:
-    FILESYSTEM = os.environ['STACKATO_FILESYSTEM']
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
@@ -67,7 +59,7 @@ WSGI_APPLICATION = 'remo_dashboard.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(FILESYSTEM, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'data/db.sqlite3'),
     }
 }
 

@@ -12,6 +12,7 @@ ignores:
   - "/lib/"
   - "/local/"
   - "/man/"
+  - "/data/"
   - "*~"
 
 env:
@@ -24,14 +25,16 @@ processes:
     web: $STACKATO_UWSGI --static-map /static=$HOME/remo_dashboard/static/
 
 services:
-    remo-dashboard: filesystem
+    data: filesystem
     
 hooks:
   post-staging:
+    - ln -s "$STACKATO_FILESYSTEM_DATA" data
     - python manage.py syncdb --noinput
     - python manage.py collectstatic --noinput
     - python manage.py migrate --noinput
-    - python manage.py fetch_data profiles
+    - python manage.py fetch_data init_mentors
+    - python manage.py fetch_data update
 
 framework:
   type: python
@@ -39,4 +42,4 @@ framework:
   runtime: python27
   
 cron:
-  - "* */6 * * * python $HOME/manage.py fetch_data profiles"
+  - "* */6 * * * python $HOME/manage.py fetch_data update"
