@@ -7,7 +7,7 @@
     <script type="text/javascript">
 
       // Load the Visualization API and the piechart package.
-      google.load('visualization', '1.1', {'packages':['bar', 'corechart']});
+      google.load('visualization', '1.1', {'packages':['bar', 'corechart', 'geochart']});
 
       // Set a callback to run when the Google Visualization API is loaded.
       google.setOnLoadCallback(drawChart);
@@ -44,15 +44,26 @@
         var stats_options = {
           title: 'Reps activity stats'
         };
+        
+        var countries_data = google.visualization.arrayToDataTable([
+          ['Country', 'Reps'],
+          {% for c in countries %}
+            ['{{ c.country }}', {{c.id__count}}],
+          {% endfor %}
+        ]);
 
-
+        var countries_options = {
+          colorAxis: {colors: ['#2983C8']},  
+        };
 
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.charts.Bar(document.getElementById('chart_div'));
         var stats = new google.visualization.LineChart(document.getElementById('chart_stats'));
+        var countries = new google.visualization.GeoChart(document.getElementById('chart_countries'));
         
         chart.draw(data, options);
         stats.draw(stats_data, stats_options);
+        countries.draw(countries_data, countries_options);
       }
     </script>
 
@@ -73,6 +84,7 @@
             <li><a href="#orphans">Orphans</a></li>
             <li><a href="#selfmentors">Self mentors</a></li>
             <li><a href="#mentees">Mentees</a></li>
+            <li><a href="#countries">Countries</a></li>
         </ul>
     </div>
     
@@ -160,10 +172,10 @@
           {% for s in stats %}
             {% if forloop.last %}
               <p>Total Reps: {{ s.reps }}</p>
-              <p>Active: {{ s.active }} ({% widthratio s.active s.reps 100 %} %)</p>
-              <p>Casual: {{ s.casual }} ({% widthratio s.casual s.reps 100 %} %)</p>
-              <p>Active + Casual: {{ s.active|add:s.casual }} ({% widthratio s.active|add:s.casual s.reps 100 %} %)</p>
-              <p>Inactive: {{ s.inactive }} ({% widthratio s.inactive s.reps 100 %} %)</p>
+              <p><abbr title="At least 1 report in the last 4 weeks">Active</abbr>: {{ s.active }} ({% widthratio s.active s.reps 100 %} %)</p>
+              <p><abbr title="At least 1 report in the last 8 weeks">Casual</abbr>: {{ s.casual }} ({% widthratio s.casual s.reps 100 %} %)</p>
+              <p><abbr title="At least 1 report in the last 4 weeks">Active</abbr> + <abbr title="At least 1 report in the last 8 weeks">Casual</abbr>: {{ s.active|add:s.casual }} ({% widthratio s.active|add:s.casual s.reps 100 %} %)</p>
+              <p><abbr title="No reports in the last 8 weeks">Inactive</abbr>: {{ s.inactive }} ({% widthratio s.inactive s.reps 100 %} %)</p>
             {% endif %}
           {% endfor %}
         
@@ -173,9 +185,9 @@
         
         <h3 class="left" id="{{ mentor.full_name|slugify }}"><img src="{{ mentor.avatar_url }}" alt="{{ mentor.full_name }}" /> <a href="{{ mentor.profile_url }}">{{ mentor.full_name }}</a> ({{ mentor.mentees.count }})</h3>
       
-        <p class="right small">Active: {{ mentor.mentees_stats.active }} ({% widthratio mentor.mentees_stats.active mentor.mentees.count 100 %} %)<br />
-        Casual: {{ mentor.mentees_stats.casual }} ({% widthratio mentor.mentees_stats.casual mentor.mentees.count 100 %} %)<br />
-        Inactive: {{ mentor.mentees_stats.inactive }} ({% widthratio mentor.mentees_stats.inactive mentor.mentees.count 100 %} %)</p>
+        <p class="right small"><abbr title="At least 1 report in the last 4 weeks">Active</abbr>: {{ mentor.mentees_stats.active }} ({% widthratio mentor.mentees_stats.active mentor.mentees.count 100 %} %)<br />
+        <abbr title="At least 1 report in the last 8 weeks">Casual</abbr>: {{ mentor.mentees_stats.casual }} ({% widthratio mentor.mentees_stats.casual mentor.mentees.count 100 %} %)<br />
+        <abbr title="No reports in the last 8 weeks">Inactive</abbr>: {{ mentor.mentees_stats.inactive }} ({% widthratio mentor.mentees_stats.inactive mentor.mentees.count 100 %} %)</p>
         </p>
         
         <table class="dashboard-table responsive on">
@@ -198,6 +210,32 @@
         </table>
         
         {% endfor %}
+    </div>
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+      <h2 id="countries">Countries</h2>
+      
+      <div id="chart_countries" style="width: 900px; height: 500px;"></div>
+
+      <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Country</th>
+              <th class="dashboard-clickable type-int">Reps</th>
+              <th class="dashboard-clickable type-int">Percentage</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for c in countries %}
+            <tr>
+                <td><a href="https://reps.mozilla.org/people/#/country/{{ c.country|urlencode }}/">{{ c.country }}</a></td>
+                <td>{{ c.id__count }}</td>
+                <td>{% widthratio c.id__count total 100 %} %</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      
     </div>
     
     </div>

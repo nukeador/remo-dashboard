@@ -22,7 +22,7 @@ env:
 mem: 128M
 
 processes:
-    web: $STACKATO_UWSGI --static-map /static=$HOME/remo_dashboard/static/
+    web: $STACKATO_UWSGI --static-map /static=$HOME/static/
 
 services:
     data: filesystem

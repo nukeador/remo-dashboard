@@ -8,7 +8,7 @@ from os.path import dirname, join, realpath, getmtime
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.db.models import F
+from django.db.models import F, Count
 
 from dashboard.models import Rep, Stat
 
@@ -115,6 +115,7 @@ def home2(request):
     
     # Stats
     stats = Stat.objects.filter().order_by('date')
+    countries = Rep.objects.values('country').annotate(Count("id")).order_by()
     
     context = {
         'updated': data_updated,
@@ -123,7 +124,8 @@ def home2(request):
         'selfmentor': selfmentor,
         'total': mentees_total,
         'average': mentees_avg,
-        'stats': stats
+        'stats': stats,
+        'countries': countries
     }
 
     return render(request, 'dashboard/home2.html', context)
