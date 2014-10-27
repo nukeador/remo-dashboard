@@ -35,6 +35,12 @@ class Command(BaseCommand):
             
             for d in data['objects']:
                 
+                # If datetime is None, set it to 1970 to track it
+                if d['profile']['last_report_date'] is None:
+                    last_report_date = datetime.date(1970, 1, 1)
+                else:
+                    last_report_date =  datetime.datetime.strptime(d['profile']['last_report_date'], '%Y-%m-%d').date()
+                
                 if d['profile']['is_mentor']:
                     try:
                         # If it's already on the database, update data
@@ -49,7 +55,7 @@ class Command(BaseCommand):
                         r.mentor = None
                         r.country = d['profile']['country']
                         r.city = d['profile']['city']
-                        r.last_report_date = datetime.date.today() #FIXME
+                        r.last_report_date = last_report_date
                         r.updated_date = timezone.now()
                         
                         r.save()
@@ -66,7 +72,7 @@ class Command(BaseCommand):
                             mentor = None,
                             country = d['profile']['country'],
                             city = d['profile']['city'],
-                            last_report_date = datetime.date.today(), #FIXME
+                            last_report_date = last_report_date,
                             updated_date = timezone.now(),
                         )
                         r.save()
@@ -96,7 +102,13 @@ class Command(BaseCommand):
                     mentor = Rep.objects.get(uri=d['profile']['mentor'])
                 except Rep.DoesNotExist:
                     mentor = None
-                    
+                
+                # If datetime is None, set it to 1970 to track it
+                if d['profile']['last_report_date'] is None:
+                    last_report_date = datetime.date(1970, 1, 1)
+                else:
+                    last_report_date =  datetime.datetime.strptime(d['profile']['last_report_date'], '%Y-%m-%d').date()
+                        
                 try:
                     # If it's already on the database, update data
                     r = Rep.objects.get(uri=d['resource_uri'], deleted=False)
@@ -110,7 +122,7 @@ class Command(BaseCommand):
                     r.mentor = mentor
                     r.country = d['profile']['country']
                     r.city = d['profile']['city']
-                    r.last_report_date = datetime.date.today() #FIXME
+                    r.last_report_date = last_report_date
                     r.updated_date = timezone.now()
                     
                     r.save()
@@ -127,7 +139,7 @@ class Command(BaseCommand):
                         mentor = mentor,
                         country = d['profile']['country'],
                         city = d['profile']['city'],
-                        last_report_date = datetime.date.today(), #FIXME
+                        last_report_date = last_report_date,
                         updated_date = timezone.now(),
                     )
                     r.save()

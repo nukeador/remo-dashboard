@@ -39,10 +39,35 @@ class Rep(models.Model):
     status = property(status)
     
     def mentees(self):
-        "Returns rep mentess."
+        "Returns rep mentees."
         mentees = Rep.objects.filter(mentor=self.id, deleted=False)
         return mentees
     mentees = property(mentees)
+    
+    def mentees_stats(self):
+        "Returns rep mentees stats."
+        mentees = Rep.objects.filter(mentor=self.id, deleted=False)
+        
+        active = 0
+        casual = 0
+        inactive = 0
+        
+        for m in mentees:
+            if m.status == 'Active':
+                active = active + 1
+            if m.status == 'Casual':
+                casual = casual + 1
+            if m.status == 'Inactive':
+                inactive = inactive + 1
+                
+        stats = {
+            'active': active,
+            'casual': casual,
+            'inactive': inactive
+        }
+            
+        return stats
+    mentees_stats = property(mentees_stats)
     
     def __unicode__(self):
         return self.full_name

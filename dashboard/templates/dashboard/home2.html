@@ -7,7 +7,7 @@
     <script type="text/javascript">
 
       // Load the Visualization API and the piechart package.
-      google.load('visualization', '1.1', {'packages':['bar']});
+      google.load('visualization', '1.1', {'packages':['bar', 'corechart']});
 
       // Set a callback to run when the Google Visualization API is loaded.
       google.setOnLoadCallback(drawChart);
@@ -17,7 +17,7 @@
       // draws it.
       function drawChart() {
 
-        // Create the data table.
+        // Create the mentors table.
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Name');
         data.addColumn('number', 'Mentees');
@@ -34,19 +34,32 @@
             },
         };
         
-        
+        var stats_data = google.visualization.arrayToDataTable([
+          ['Date', 'Total', 'Inactive', 'Casual', 'Active', 'Active + Casual'],
+          {% for s in stats %}
+            ['{{ s.date }}', {{ s.reps }}, {{ s.inactive }}, {{ s.casual }}, {{ s.active }}, {{ s.active|add:s.casual }}],
+          {% endfor %}
+        ]);
+
+        var stats_options = {
+          title: 'Reps activity stats'
+        };
+
 
 
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.charts.Bar(document.getElementById('chart_div'));
+        var stats = new google.visualization.LineChart(document.getElementById('chart_stats'));
+        
         chart.draw(data, options);
+        stats.draw(stats_data, stats_options);
       }
     </script>
 
 {% endblock %}
 
 {% block content %}
-
+          
 <main role="main" class="events-main">
   <div class="row">
     <div class="large-12 columns align-left">
@@ -85,7 +98,7 @@
             <tr>
                 <td><a href="{{ mentor.profile_url }}">{{ mentor.full_name }}</a></td>
                 <td {% if mentor.mentees.count > average %}class="inactive-low"{% endif %}><a href="#{{ mentor.full_name|slugify }}">{{ mentor.mentees.count }}</a></td>
-                <td>{{ mentor.status }}</td>
+                <td><span title="{{ mentor.last_report_date }}" {% if mentor.status == "Inactive" %}style="color: red"{% endif %}>{{ mentor.status }}</span></td>
             </tr>
             {% endfor %}
             </tbody>
@@ -109,7 +122,7 @@
             <tr>
                 <td><a href="{{ orphan.profile_url }}">{{ orphan.full_name }}</a></td>
                 <td>{{ orphan.mentor }}</td>
-                <td>{{ orphan.status }}</td>
+                <td><span title="{{ orphan.last_report_date }}" {% if orphan.status == "Inactive" %}style="color: red"{% endif %}>{{ orphan.status }}</span></td>
             </tr>
             {% endfor %}
             </tbody>
@@ -131,7 +144,7 @@
             {% for rep in selfmentor %}
             <tr>
                 <td><a href="{{ rep.profile_url }}">{{ rep.full_name }}</a></td>
-                 <td>{{ rep.status }}</td>
+                 <td><span title="{{ orphan.last_report_date }}" {% if orphan.status == "Inactive" %}style="color: red"{% endif %}>{{ rep.status }}</span></td>
             </tr>
             {% endfor %}
             </tbody>
@@ -143,10 +156,27 @@
     <div id="dashboard-br-my-block" class="large-12 columns">
         
         <h2 id="mentees">Mentees</h2>
+        
+          {% for s in stats %}
+            {% if forloop.last %}
+              <p>Total Reps: {{ s.reps }}</p>
+              <p>Active: {{ s.active }} ({% widthratio s.active s.reps 100 %} %)</p>
+              <p>Casual: {{ s.casual }} ({% widthratio s.casual s.reps 100 %} %)</p>
+              <p>Active + Casual: {{ s.active|add:s.casual }} ({% widthratio s.active|add:s.casual s.reps 100 %} %)</p>
+              <p>Inactive: {{ s.inactive }} ({% widthratio s.inactive s.reps 100 %} %)</p>
+            {% endif %}
+          {% endfor %}
+        
+        <div id="chart_stats" style="width: 100%; height: 500px;"></div>
          
         {% for mentor in mentors %}
         
-        <h3 id="{{ mentor.full_name|slugify }}"><img src="{{ mentor.avatar_url }}" alt="{{ mentor.full_name }}" /> <a href="{{ mentor.profile_url }}">{{ mentor.full_name }}</a> ({{ mentor.mentees.count }})</h3>
+        <h3 class="left" id="{{ mentor.full_name|slugify }}"><img src="{{ mentor.avatar_url }}" alt="{{ mentor.full_name }}" /> <a href="{{ mentor.profile_url }}">{{ mentor.full_name }}</a> ({{ mentor.mentees.count }})</h3>
+      
+        <p class="right small">Active: {{ mentor.mentees_stats.active }} ({% widthratio mentor.mentees_stats.active mentor.mentees.count 100 %} %)<br />
+        Casual: {{ mentor.mentees_stats.casual }} ({% widthratio mentor.mentees_stats.casual mentor.mentees.count 100 %} %)<br />
+        Inactive: {{ mentor.mentees_stats.inactive }} ({% widthratio mentor.mentees_stats.inactive mentor.mentees.count 100 %} %)</p>
+        </p>
         
         <table class="dashboard-table responsive on">
           <thead>
@@ -161,7 +191,7 @@
             <tr>
                 <td><a href="{{ rep.profile_url }}">{{ rep.full_name }}</a></td>
                 <td>{{ rep.country }}</td>
-                <td>{{ rep.status }}</td>
+                <td><span title="{{ rep.last_report_date }}" {% if rep.status == "Inactive" %}style="color: red"{% endif %}>{{ rep.status }}</a></span></td>
             </tr>
             {% endfor %}
             </tbody>

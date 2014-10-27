@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.db.models import F
 
-from dashboard.models import Rep
+from dashboard.models import Rep, Stat
 
 PROJECT_PATH = realpath(join(dirname(__file__), '..'))
 FILE = PROJECT_PATH + '/reps.json'
@@ -105,6 +105,7 @@ def home2(request):
     mentors = Rep.objects.filter(is_mentor=True, deleted=False).order_by('first_name')
     mentees = Rep.objects.filter(deleted=False).order_by('first_name')
     orphans = Rep.objects.filter(mentor=None, deleted=False).order_by('first_name')
+    
     # FIXME: Query for mentors that are no longer mentors
     selfmentor = Rep.objects.filter(mentor=F('id'), deleted=False).order_by('first_name')
     
@@ -112,13 +113,17 @@ def home2(request):
     mentees_total = mentees.count()
     mentees_avg =  mentees_total / mentors.count()
     
+    # Stats
+    stats = Stat.objects.filter().order_by('date')
+    
     context = {
         'updated': data_updated,
         'mentors': mentors,
         'orphans': orphans,
         'selfmentor': selfmentor,
         'total': mentees_total,
-        'average': mentees_avg
+        'average': mentees_avg,
+        'stats': stats
     }
 
     return render(request, 'dashboard/home2.html', context)
