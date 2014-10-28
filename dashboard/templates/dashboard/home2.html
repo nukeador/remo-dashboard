@@ -20,10 +20,11 @@
         // Create the mentors table.
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Name');
-        data.addColumn('number', 'Mentees');
+        data.addColumn('number', 'Active + casual');
+        data.addColumn('number', 'Inactive');
         data.addRows([
         {% for mentor in mentors %}
-          ['{{ mentor.full_name }}', {{ mentor.mentees.count }}],
+          ['{{ mentor.full_name }}', {{ mentor.mentees_stats.active|add:mentor.mentees_stats.casual }}, {{ mentor.mentees_stats.inactive }}],
         {% endfor %}
         ]);
 
@@ -32,6 +33,7 @@
             chart: {
                 subtitle: 'Mentees per mentor',
             },
+            isStacked: true,
         };
         
         var stats_data = google.visualization.arrayToDataTable([
@@ -57,7 +59,7 @@
         };
 
         // Instantiate and draw our chart, passing in some options.
-        var chart = new google.charts.Bar(document.getElementById('chart_div'));
+        var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
         var stats = new google.visualization.LineChart(document.getElementById('chart_stats'));
         var countries = new google.visualization.GeoChart(document.getElementById('chart_countries'));
         
