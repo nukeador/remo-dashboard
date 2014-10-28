@@ -97,11 +97,6 @@ def home(request):
 
 def home2(request):
     
-    entries = []
-
-    response = open(FILE)
-    data_updated = time.ctime(getmtime(FILE))
-    
     mentors = Rep.objects.filter(is_mentor=True, deleted=False).order_by('first_name')
     mentees = Rep.objects.filter(deleted=False).order_by('first_name')
     # Mentees with mentors no longer in the portal and mentors that are no longer mentors
@@ -115,6 +110,7 @@ def home2(request):
     
     # Stats
     stats = Stat.objects.filter().order_by('date')
+    data_updated = stats.order_by('-date')[0].date
     countries = Rep.objects.values('country').annotate(Count("id")).order_by()
     
     context = {
