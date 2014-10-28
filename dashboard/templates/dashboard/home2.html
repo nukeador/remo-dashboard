@@ -59,11 +59,11 @@
         };
 
         // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+        var chart = new google.charts.Bar(document.getElementById('chart_div'));
         var stats = new google.visualization.LineChart(document.getElementById('chart_stats'));
         var countries = new google.visualization.GeoChart(document.getElementById('chart_countries'));
         
-        chart.draw(data, options);
+        chart.draw(data, google.charts.Bar.convertOptions(options));
         stats.draw(stats_data, stats_options);
         countries.draw(countries_data, countries_options);
       }
