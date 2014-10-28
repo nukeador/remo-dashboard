@@ -52,7 +52,6 @@ class Command(BaseCommand):
                         r.is_council = d['profile']['is_council']
                         r.avatar_url = d['profile']['avatar_url']
                         r.profile_url = d['profile']['profile_url']
-                        r.mentor = None
                         r.country = d['profile']['country']
                         r.city = d['profile']['city']
                         r.last_report_date = last_report_date
