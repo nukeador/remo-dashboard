@@ -101,16 +101,20 @@
           <thead>
             <tr>
               <th class="dashboard-clickable type-string">Full Name</th>
-              <th class="dashboard-clickable type-int">Mentees</th>
               <th class="dashboard-clickable type-string">Status</th>
+              <th class="dashboard-clickable type-int">Mentees</th>
+              <th class="dashboard-clickable type-int">Active + casual</th>
+              <th class="dashboard-clickable type-int">Inactive</th>
             </tr>
           </thead>
           <tbody id="table-search-list">
             {% for mentor in mentors %}
             <tr>
                 <td><a href="{{ mentor.profile_url }}">{{ mentor.full_name }}</a></td>
-                <td {% if mentor.mentees.count > average %}class="inactive-low"{% endif %}><a href="#{{ mentor.full_name|slugify }}">{{ mentor.mentees.count }}</a></td>
                 <td><span title="{{ mentor.last_report_date }}" {% if mentor.status == "Inactive" %}style="color: red"{% endif %}>{{ mentor.status }}</span></td>
+                <td {% if mentor.mentees.count > average %}class="inactive-low"{% endif %}><a href="#{{ mentor.full_name|slugify }}">{{ mentor.mentees.count }}</a></td>
+                <td>{% widthratio mentor.mentees_stats.active|add:mentor.mentees_stats.casual mentor.mentees.count 100 %} %</td>
+                <td>{% widthratio mentor.mentees_stats.inactive mentor.mentees.count 100 %} %</td>
             </tr>
             {% endfor %}
             </tbody>
