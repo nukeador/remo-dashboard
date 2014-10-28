@@ -80,14 +80,7 @@
     
     <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
         <p class="align-right">Data updated: {{ updated }}</p>
-    
-        <ul>
-            <li><a href="#mentors">Mentors</a></li>
-            <li><a href="#orphans">Orphans</a></li>
-            <li><a href="#selfmentors">Self mentors</a></li>
-            <li><a href="#mentees">Mentees</a></li>
-            <li><a href="#countries">Countries</a></li>
-        </ul>
+            <p class="center"><a href="#mentors">Mentors</a> - <a href="#orphans">Orphans</a> - <a href="#selfmentors">Self mentors</a> - <a href="#mentees">Mentees</a> - <a href="#countries">Countries</a> - <a href="#all-reps">All Reps</a></p>
     </div>
     
     <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
@@ -131,7 +124,7 @@
           <thead>
             <tr>
               <th class="dashboard-clickable type-string">Full Name</th>
-              <th class="dashboard-clickable type-int">Mentor</th>
+              <th class="dashboard-clickable type-string">Mentor</th>
               <th class="dashboard-clickable type-string">Status</th>
             </tr>
           </thead>
@@ -162,7 +155,7 @@
             {% for rep in selfmentor %}
             <tr>
                 <td><a href="{{ rep.profile_url }}">{{ rep.full_name }}</a></td>
-                 <td><span title="{{ orphan.last_report_date }}" {% if orphan.status == "Inactive" %}style="color: red"{% endif %}>{{ rep.status }}</span></td>
+                 <td><span title="{{ rep.last_report_date }}" {% if rep.status == "Inactive" %}style="color: red"{% endif %}>{{ rep.status }}</span></td>
             </tr>
             {% endfor %}
             </tbody>
@@ -240,6 +233,32 @@
             </tr>
             {% endfor %}
           </tbody>
+        </table>
+      
+    </div>
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+      <h2 id="all-reps">All reps</h2>
+      
+      <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+              <th class="dashboard-clickable type-string">Country</th>
+              <th class="dashboard-clickable type-string">Mentor</th>
+              <th class="dashboard-clickable type-string">Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for rep in mentees %}
+            <tr>
+                <td><a href="{{ rep.profile_url }}">{{ rep.full_name }}</a></td>
+                <td>{{ rep.country }}</td>
+                <td><a href="#{{ rep.mentor.full_name|slugify }}">{{ rep.mentor }}</a></td>
+                <td><span title="{{ rep.last_report_date }}" {% if rep.status == "Inactive" %}style="color: red"{% endif %}>{{ rep.status }}</a></span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
         </table>
       
     </div>

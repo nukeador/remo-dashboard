@@ -119,6 +119,7 @@ def home2(request):
     
     context = {
         'updated': data_updated,
+        'mentees': mentees,
         'mentors': mentors,
         'orphans': orphans,
         'selfmentor': selfmentor,
