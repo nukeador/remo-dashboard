@@ -104,9 +104,9 @@ def home2(request):
     
     mentors = Rep.objects.filter(is_mentor=True, deleted=False).order_by('first_name')
     mentees = Rep.objects.filter(deleted=False).order_by('first_name')
-    orphans = Rep.objects.filter(mentor=None, deleted=False).order_by('first_name')
+    # Mentees with mentors no longer in the portal and mentors that are no longer mentors
+    orphans = Rep.objects.filter(mentor=None, deleted=False).order_by('first_name')|Rep.objects.filter(mentor__is_mentor=False, deleted=False).order_by('first_name')
     
-    # FIXME: Query for mentors that are no longer mentors
     selfmentor = Rep.objects.filter(mentor=F('id'), deleted=False).order_by('first_name')
     
     # Total mentees and average
