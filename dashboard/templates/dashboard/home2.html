@@ -80,7 +80,7 @@
     
     <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
         <p class="align-right">Data updated: {{ updated }}</p>
-            <p class="center"><a href="#mentors">Mentors</a> - <a href="#orphans">Orphans</a> - <a href="#selfmentors">Self mentors</a> - <a href="#mentees">Mentees</a> - <a href="#countries">Countries</a> - <a href="#all-reps">All Reps</a></p>
+            <p class="center"><a href="#mentors">Mentors</a> - <a href="#orphans">Orphans</a> - <a href="#empties">Empties</a> - <a href="#selfmentors">Self mentors</a> - <a href="#mentees">Mentees</a> - <a href="#countries">Countries</a> - <a href="#all-reps">All Reps</a></p>
     </div>
     
     <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
@@ -120,6 +120,8 @@
         
         <h2 id="orphans">Orphans ({{ orphans|length }})</h2>
         
+        <p>Mentess with a non-mentor or removed Rep as mentor.</p>
+        
         <table class="dashboard-table responsive on">
           <thead>
             <tr>
@@ -142,7 +144,35 @@
     
     <div id="dashboard-br-my-block" class="large-12 columns">
         
+        <h2 id="empties">Empties ({{ empties|length }})</h2>
+        
+        <p>Profiles with no reports</p>
+        
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+              <th class="dashboard-clickable type-string">Mentor</th>
+              <th class="dashboard-clickable type-string">Country</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for empty in empties %}
+            <tr>
+                <td><a href="{{ empty.profile_url }}">{{ empty.full_name }}</a></td>
+                <td><a href="#{{ empty.mentor.full_name|slugify }}">{{ empty.mentor }}</a></td>
+                <td>{{ empty.country }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+        
         <h2 id="selfmentors">Self mentors ({{ selfmentor|length }})</h2>
+        
+        <p>Mentors with themselves as mentor.</p>
         
         <table class="dashboard-table responsive on">
           <thead>
@@ -167,18 +197,6 @@
     <div id="dashboard-br-my-block" class="large-12 columns">
         
         <h2 id="mentees">Mentees</h2>
-        
-          {% for s in stats %}
-            {% if forloop.last %}
-              <p>Total Reps: {{ s.reps }}</p>
-              <p><abbr title="At least 1 report in the last 4 weeks">Active</abbr>: {{ s.active }} ({% widthratio s.active s.reps 100 %} %)</p>
-              <p><abbr title="At least 1 report in the last 8 weeks">Casual</abbr>: {{ s.casual }} ({% widthratio s.casual s.reps 100 %} %)</p>
-              <p><abbr title="At least 1 report in the last 4 weeks">Active</abbr> + <abbr title="At least 1 report in the last 8 weeks">Casual</abbr>: {{ s.active|add:s.casual }} ({% widthratio s.active|add:s.casual s.reps 100 %} %)</p>
-              <p><abbr title="No reports in the last 8 weeks">Inactive</abbr>: {{ s.inactive }} ({% widthratio s.inactive s.reps 100 %} %)</p>
-            {% endif %}
-          {% endfor %}
-        
-        <div id="chart_stats" style="width: 100%; height: 500px;"></div>
          
         {% for mentor in mentors %}
         
@@ -240,6 +258,18 @@
     <div id="dashboard-br-my-block" class="large-12 columns">
       <h2 id="all-reps">All reps</h2>
       
+      {% for s in stats %}
+            {% if forloop.last %}
+              <p>Total Reps: {{ s.reps }}</p>
+              <p><abbr title="At least 1 report in the last 4 weeks">Active</abbr>: {{ s.active }} ({% widthratio s.active s.reps 100 %} %)</p>
+              <p><abbr title="At least 1 report in the last 8 weeks">Casual</abbr>: {{ s.casual }} ({% widthratio s.casual s.reps 100 %} %)</p>
+              <p><abbr title="At least 1 report in the last 4 weeks">Active</abbr> + <abbr title="At least 1 report in the last 8 weeks">Casual</abbr>: {{ s.active|add:s.casual }} ({% widthratio s.active|add:s.casual s.reps 100 %} %)</p>
+              <p><abbr title="No reports in the last 8 weeks">Inactive</abbr>: {{ s.inactive }} ({% widthratio s.inactive s.reps 100 %} %)</p>
+            {% endif %}
+          {% endfor %}
+        
+      <div id="chart_stats" style="width: 100%; height: 500px;"></div>
+        
       <table class="dashboard-table responsive on">
           <thead>
             <tr>

@@ -2,6 +2,7 @@
 
 import json
 import time
+import datetime
 
 from os.path import dirname, join, realpath, getmtime
 
@@ -101,6 +102,7 @@ def home2(request):
     mentees = Rep.objects.filter(deleted=False).order_by('first_name')
     # Mentees with mentors no longer in the portal and mentors that are no longer mentors
     orphans = Rep.objects.filter(mentor=None, deleted=False).order_by('first_name')|Rep.objects.filter(mentor__is_mentor=False, deleted=False).order_by('first_name')
+    empties = Rep.objects.filter(last_report_date=datetime.date(1970, 1, 1),deleted=False)
     
     selfmentor = Rep.objects.filter(mentor=F('id'), deleted=False).order_by('first_name')
     
@@ -118,6 +120,7 @@ def home2(request):
         'mentees': mentees,
         'mentors': mentors,
         'orphans': orphans,
+        'empties': empties,
         'selfmentor': selfmentor,
         'total': mentees_total,
         'average': mentees_avg,
