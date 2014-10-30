@@ -1,0 +1,171 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block extrajs %}
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+
+      // Load the Visualization API and the piechart package.
+      google.load('visualization', '1.1', {'packages':['bar']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');
+        data.addColumn('number', 'Mentees');
+        data.addRows([
+        {% for mentor in mentors %}
+          ['{{ mentor.name }}', {{ mentor.mentees|length }}],
+        {% endfor %}
+        ]);
+
+        // Set chart options
+        var options = {
+            chart: {
+                subtitle: 'Mentees per mentor',
+            },
+        };
+        
+        
+
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.charts.Bar(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+    </script>
+
+{% endblock %}
+
+{% block content %}
+
+<main role="main" class="events-main">
+  <div class="row">
+    <div class="large-12 columns align-left">
+    <h1 id="title">Reps Dashboard</h1>
+    
+    <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
+        <p class="align-right">Data updated: {{ updated }}</p>
+    
+        <ul>
+            <li><a href="#mentors">Mentors</a></li>
+            <li><a href="#orphans">Orphans</a></li>
+            <li><a href="#selfmentors">Self mentors</a></li>
+            <li><a href="#mentees">Mentees</a></li>
+        </ul>
+    </div>
+    
+    <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
+        
+        <h2 id="mentors">Mentors ({{ mentors|length }})</h2>
+
+        <p>Total mentees: {{ total }}</p>
+        <p>Mentees average: {{ average }}</p>
+        
+        <div id="chart_div" style="width: 100%; height: 500px;"></div>
+    
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+              <th class="dashboard-clickable type-int">Mentees</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for mentor in mentors %}
+            <tr>
+                <td><a href="{{ mentor.url }}">{{ mentor.name }}</a></td>
+                <td {% if mentor.mentees|length > average %}class="inactive-low"{% endif %}><a href="#{{ mentor.name|slugify }}">{{ mentor.mentees|length }}</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+        
+        <h2 id="orphans">Orphans ({{ orphans|length }})</h2>
+        
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+              <th class="dashboard-clickable type-int">Mentor</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for orphan in orphans %}
+            <tr>
+                <td><a href="{{ orphan.url }}">{{ orphan.name }}</a></td>
+                <td>{{ orphan.mentor }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+        
+        <h2 id="selfmentors">Self mentors ({{ selfmentor|length }})</h2>
+        
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for rep in selfmentor %}
+            <tr>
+                <td><a href="{{ rep.url }}">{{ rep.name }}</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+   
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+        
+        <h2 id="mentees">Mentees</h2>
+         
+        {% for mentor in mentors %}
+        
+        <h3 id="{{ mentor.name|slugify }}"><img src="{{ mentor.avatar }}" alt="{{ mentor.name }}" /> <a href="{{ mentor.url }}">{{ mentor.name }}</a> ({{ mentor.mentees|length }})</h3>
+        
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Full Name</th>
+              <th class="dashboard-clickable type-string">Country</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for rep in mentor.mentees %}
+            <tr>
+                <td><a href="{{ rep.url }}">{{ rep.name }}</a></td>
+                <td>{{ rep.country }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        
+        {% endfor %}
+    </div>
+    
+    </div>
+  </div>
+</main>
+
+<p style="right: 30px; bottom: 30px; position: fixed;"><a href="#title">↑ Back to the top</a></p>
+
+{% endblock %}

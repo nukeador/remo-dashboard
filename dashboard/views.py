@@ -16,9 +16,41 @@ from dashboard.models import Rep, Stat
 PROJECT_PATH = realpath(join(dirname(__file__), '..'))
 FILE = PROJECT_PATH + '/reps.json'
 
-# Create your views here.
-
 def home(request):
+    
+    mentors = Rep.objects.filter(is_mentor=True, deleted=False).order_by('first_name')
+    mentees = Rep.objects.filter(deleted=False).order_by('first_name')
+    # Mentees with mentors no longer in the portal and mentors that are no longer mentors
+    orphans = Rep.objects.filter(mentor=None, deleted=False).order_by('first_name')|Rep.objects.filter(mentor__is_mentor=False, deleted=False).order_by('first_name')
+    empties = Rep.objects.filter(last_report_date=datetime.date(1970, 1, 1),deleted=False)
+    
+    selfmentor = Rep.objects.filter(mentor=F('id'), deleted=False).order_by('first_name')
+    
+    # Total mentees and average
+    mentees_total = mentees.count()
+    mentees_avg =  mentees_total / mentors.count()
+    
+    # Stats
+    stats = Stat.objects.filter().order_by('date')
+    data_updated = stats.order_by('-date')[0].date
+    countries = Rep.objects.values('country').annotate(Count("id")).order_by()
+    
+    context = {
+        'updated': data_updated,
+        'mentees': mentees,
+        'mentors': mentors,
+        'orphans': orphans,
+        'empties': empties,
+        'selfmentor': selfmentor,
+        'total': mentees_total,
+        'average': mentees_avg,
+        'stats': stats,
+        'countries': countries
+    }
+
+    return render(request, 'dashboard/home.html', context)
+
+def home_local(request):
     
     entries = []
 
@@ -94,38 +126,4 @@ def home(request):
         'average': mentees_avg
     }
 
-    return render(request, 'dashboard/home.html', context)
-
-def home2(request):
-    
-    mentors = Rep.objects.filter(is_mentor=True, deleted=False).order_by('first_name')
-    mentees = Rep.objects.filter(deleted=False).order_by('first_name')
-    # Mentees with mentors no longer in the portal and mentors that are no longer mentors
-    orphans = Rep.objects.filter(mentor=None, deleted=False).order_by('first_name')|Rep.objects.filter(mentor__is_mentor=False, deleted=False).order_by('first_name')
-    empties = Rep.objects.filter(last_report_date=datetime.date(1970, 1, 1),deleted=False)
-    
-    selfmentor = Rep.objects.filter(mentor=F('id'), deleted=False).order_by('first_name')
-    
-    # Total mentees and average
-    mentees_total = mentees.count()
-    mentees_avg =  mentees_total / mentors.count()
-    
-    # Stats
-    stats = Stat.objects.filter().order_by('date')
-    data_updated = stats.order_by('-date')[0].date
-    countries = Rep.objects.values('country').annotate(Count("id")).order_by()
-    
-    context = {
-        'updated': data_updated,
-        'mentees': mentees,
-        'mentors': mentors,
-        'orphans': orphans,
-        'empties': empties,
-        'selfmentor': selfmentor,
-        'total': mentees_total,
-        'average': mentees_avg,
-        'stats': stats,
-        'countries': countries
-    }
-
-    return render(request, 'dashboard/home2.html', context)
+    return render(request, 'dashboard/home-local.html', context)

@@ -7,6 +7,6 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^db', 'dashboard.views.home2', name='home2'),
+    url(r'^local', 'dashboard.views.home_local', name='home_local'),
     url(r'^$', 'dashboard.views.home', name='home'),
 )
