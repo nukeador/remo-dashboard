@@ -9,9 +9,9 @@ from os.path import dirname, join, realpath, getmtime
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.db.models import F, Count
+from django.db.models import F, Count, Sum
 
-from dashboard.models import Rep, Stat
+from dashboard.models import Rep, Stat, Event, FunctionalArea
 
 PROJECT_PATH = realpath(join(dirname(__file__), '..'))
 FILE = PROJECT_PATH + '/reps.json'
@@ -50,6 +50,85 @@ def home(request):
 
     return render(request, 'dashboard/home.html', context)
 
+
+def events(request):
+    
+    events = Event.objects.all()
+    events_stats = [
+        {
+            'year': '2012',
+            'count': events.filter(start__year='2012').count(),
+            'mozilla': events.filter(start__year='2012', mozilla_event=True).count(),
+            'non_mozilla': events.filter(start__year='2012', mozilla_event=False).count(),
+        },
+        {
+            'year': '2013',
+            'count': events.filter(start__year='2013').count(),
+            'mozilla': events.filter(start__year='2013', mozilla_event=True).count(),
+            'non_mozilla': events.filter(start__year='2013', mozilla_event=False).count(),
+        },
+        {
+            'year': '2014',
+            'count': events.filter(start__year='2014').count(),
+            'mozilla': events.filter(start__year='2014', mozilla_event=True).count(),
+            'non_mozilla': events.filter(start__year='2014', mozilla_event=False).count(),
+        },
+    ]
+    
+    areas = FunctionalArea.objects.filter().order_by('name')
+    areas_stats = []
+    for a in areas:
+        events_count = Event.objects.filter(categories=a).count()
+        areas_stats.append({
+            'name': a.name,
+            'count': events_count,
+            'stats': [
+                {
+                    'year': '2012',
+                    'count': Event.objects.filter(categories=a, start__year='2012').count()
+                },
+                {
+                    'year': '2013',
+                    'count': Event.objects.filter(categories=a, start__year='2013').count()
+                },
+                {
+                    'year': '2014',
+                    'count': Event.objects.filter(categories=a, start__year='2014').count()
+                },
+            ]
+        })
+    
+    attendees = Event.objects.aggregate(Sum('estimated_attendance'))
+    attendees_stats = [
+        {
+            'year': '2012',
+            'count': Event.objects.filter(start__year='2012').aggregate(Sum('estimated_attendance'))
+        },
+        {
+            'year': '2013',
+            'count': Event.objects.filter(start__year='2013').aggregate(Sum('estimated_attendance'))
+        },
+        {
+            'year': '2014',
+            'count': Event.objects.filter(start__year='2014').aggregate(Sum('estimated_attendance'))
+        },
+    ]
+    
+    
+    countries = Event.objects.values('country').annotate(Count("id")).order_by()
+    
+    context = {
+        'events': events,
+        'areas': areas_stats,
+        'events_stats': events_stats,
+        'attendees': attendees['estimated_attendance__sum'],
+        'attendees_stats': attendees_stats,
+        'countries': countries,
+    }
+    
+    return render(request, 'dashboard/events.html', context)
+
+    
 def home_local(request):
     
     entries = []

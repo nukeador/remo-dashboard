@@ -1,0 +1,239 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block extrajs %}
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+
+      // Load the Visualization API and the piechart package.
+      google.load('visualization', '1.1', {'packages':['bar', 'corechart', 'geochart', 'piechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+
+        // Number of events
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Year');
+        data.addColumn('number', 'Mozilla');
+        data.addColumn('number', 'non-mozilla');
+        data.addRows([
+          {% for s in events_stats %}
+            ['{{ s.year }}', {{ s.mozilla }}, {{ s.non_mozilla }}],
+          {% endfor %}
+        ]);
+
+        var options = {
+            chart: {
+                subtitle: 'Events per year',
+            },
+            isStacked: true,
+        };
+        
+        // Events per area
+        var area_data = google.visualization.arrayToDataTable([
+          ['Area', 'Events'],
+          {% for a in areas %}
+            ['{{ a.name }}', {{ a.count }}],
+          {% endfor %}
+        ]);
+        
+        var area_options = {
+          title: 'Events per functional area'
+        };
+        
+        /* Areas per year
+        var area2_data = google.visualization.arrayToDataTable([
+          ['Year', {% for a in areas %}'{{ a.name }}',{% endfor %}],
+          ['2013', {% for a in areas %}{{ a.stats.1.count }},{% endfor %}],
+          ['2014', {% for a in areas %}{{ a.stats.2.count }},{% endfor %}],
+        ]);
+
+        var area2_options = {
+          title: 'Area evolution'
+        };*/
+        
+        // Events per country
+        var countries_data = google.visualization.arrayToDataTable([
+          ['Country', 'Events'],
+          {% for c in countries %}
+            ['{{ c.country }}', {{c.id__count}}],
+          {% endfor %}
+        ]);
+
+        var countries_options = {
+          colorAxis: {colors: ['#2983C8']},  
+        };
+        
+        // Attendees per year
+        var attendees_data = new google.visualization.DataTable();
+        attendees_data.addColumn('string', 'Year');
+        attendees_data.addColumn('number', 'Attendees');
+        attendees_data.addRows([
+          {% for s in attendees_stats %}
+            ['{{ s.year }}', {{ s.count.estimated_attendance__sum }}],
+          {% endfor %}
+        ]);
+
+        var attendees_options = {
+            chart: {
+                subtitle: 'Attendees per year',
+            },
+        };
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.charts.Bar(document.getElementById('chart_div'));
+        var area_chart = new google.visualization.PieChart(document.getElementById('areaschart'));
+        var attendees_chart = new google.charts.Bar(document.getElementById('attendees_chart'));
+        var countries = new google.visualization.GeoChart(document.getElementById('chart_countries'));
+        //var area2_chart = new google.visualization.LineChart(document.getElementById('areas2chart'));
+        
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+        area_chart.draw(area_data, area_options);
+        attendees_chart.draw(attendees_data, google.charts.Bar.convertOptions(attendees_options));
+        countries.draw(countries_data, countries_options);
+        //area2_chart.draw(area2_data, area2_options);
+
+      }
+    </script>
+
+{% endblock %}
+
+{% block content %}
+          
+<main role="main" class="events-main">
+  <div class="row">
+    <div class="large-12 columns align-left">
+    <h1 id="title">Events Dashboard</h1>
+    
+    <div class="large-12 columns">
+      <p class="center"><a href="#events-number">Number of events</a> - <a href="#functional-areas">Functional areas</a> - <a href="#attendees">Attendees</a></p>
+    </div>
+    
+    <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
+      <h2 id="events-number">Number of events</h2>
+      
+      <p>Total: {{ events|length }}</p>
+
+      <div id="chart_div" style="width: 100%; height: 500px;"></div>
+      
+      <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Year</th>
+              <th class="dashboard-clickable type-integer">Total</th>
+              <th class="dashboard-clickable type-integer">Mozilla</th>
+              <th class="dashboard-clickable type-integer">non-mozilla</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for s in events_stats %}
+            <tr>
+                <td>{{s.year}}</td>
+                <td>{{ s.count }}</td>
+                <td>{{ s.mozilla }}</td>
+                <td>{{ s.non_mozilla }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+      </table>
+    
+    </div>
+    
+    <div class="large-12 columns">
+      
+      <h2 id="functional-areas">Functional areas</h2>
+      
+      <div id="areaschart" style="width: 900px; height: 500px;"></div>
+      
+      
+      <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Area</th>
+              <th class="dashboard-clickable type-integer">Total</th>
+              <th class="dashboard-clickable type-integer">2013</th>
+              <th class="dashboard-clickable type-integer">2014</th>
+              <th class="dashboard-clickable type-integer">Change</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for a in areas %}
+            <tr>
+                <td><a href="https://reps.mozilla.org/events/#/period/all/category/{{ a.name|urlencode }}/">{{ a.name }}</a></td>
+                <td>{{ a.count }}</td>
+                <td>{{ a.stats.1.count }}</td>
+                <td>{{ a.stats.2.count }}</td>
+                <td>{% widthratio a.stats.2.count a.stats.1.count 100 %} %</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+      </table>
+      
+    </div>
+    
+    <div class="large-12 columns">
+      
+      <h2 id="attendees">Attendees</h2>
+      
+      <p>Total number: {{ attendees }}</p>
+      
+      <div id="attendees_chart" style="width: 100%; height: 500px;"></div>
+      
+      <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Year</th>
+              <th class="dashboard-clickable type-integer">Attendees</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for s in attendees_stats %}
+            <tr>
+                <td>{{ s.year }}</td>
+                <td>{{ s.count.estimated_attendance__sum }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+      </table>
+      
+    </div>
+    
+    <div id="dashboard-br-my-block" class="large-12 columns">
+      <h2 id="countries">Countries</h2>
+      
+      <div id="chart_countries" style="width: 900px; height: 500px;"></div>
+
+      <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Country</th>
+              <th class="dashboard-clickable type-int">Events</th>
+              <th class="dashboard-clickable type-int">Percentage</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for c in countries %}
+            <tr>
+                <td><a href="https://reps.mozilla.org/events/#/search/{{ c.country|urlencode }}/period/all/">{{ c.country }}</a></td>
+                <td>{{ c.id__count }}</td>
+                <td>{% widthratio c.id__count events|length 100 %} %</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      
+    </div>
+    
+  </div>
+  </div>
+</main>
+
+<p style="right: 30px; bottom: 30px; position: fixed;"><a href="#title">↑ Back to the top</a></p>
+
+{% endblock %}

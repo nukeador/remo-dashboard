@@ -3,6 +3,14 @@ import datetime
 from django.db import models
 
 
+class FunctionalArea(models.Model):
+    """Mozilla functional areas."""
+    name = models.CharField(max_length=100, unique=True)
+    
+    def __unicode__(self):
+        return self.name
+
+
 class Rep(models.Model):
     """Rep model."""
     uri = models.CharField(max_length=100, unique=True)
@@ -71,7 +79,26 @@ class Rep(models.Model):
     
     def __unicode__(self):
         return self.full_name
+ 
+
+class Event(models.Model):
+    """ Model to store events """
+    uri = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=500)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    url = models.URLField()
+    owner = models.ForeignKey(Rep, null=True)
+    mozilla_event = models.BooleanField(default=True)
+    country = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    estimated_attendance = models.IntegerField()
+    categories = models.ManyToManyField(FunctionalArea)
     
+    def __unicode__(self):
+        return self.name
+
+
 class Stat(models.Model):
     """ Model to store scheduled stats """
     

@@ -8,5 +8,6 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^local', 'dashboard.views.home_local', name='home_local'),
+    url(r'^events', 'dashboard.views.events', name='events'),
     url(r'^$', 'dashboard.views.home', name='home'),
 )

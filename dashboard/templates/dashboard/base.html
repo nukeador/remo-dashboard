@@ -70,7 +70,7 @@
             <!-- Logo and Wordmark -->
             <div class="four columns" id="logo-box">
               <div class="row hide-on-phones">
-                <a href="#">
+                <a href="https://reps.mozilla.org">
                   <img src="//reps.mozilla.org/static/base/img/remo/remo_logo_medium.png" alt="Mozilla Reps logo">
                   <h3>
                     <span class="metabold">mozilla</span>
@@ -85,6 +85,12 @@
               <ul class="nav-bar">
                 <li>
                   <a href="https://reps.mozilla.org" class="main ">Reps portal</a>
+                </li>
+                <li>
+                  <a href="{% url 'home' %}" class="main ">Reps dashboard</a>
+                </li>
+                <li>
+                  <a href="{% url 'events' %}" class="main ">Events dashboard</a>
                 </li>
                 <li class="last">
                   <a href="https://reps.mozilla.org/labs" class="main ">Labs</a>

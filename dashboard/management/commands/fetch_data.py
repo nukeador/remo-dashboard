@@ -8,12 +8,13 @@ from os.path import dirname, join, realpath
 from django.utils import timezone
 from django.core.management.base import BaseCommand, CommandError
 
-from dashboard.models import Rep, Stat
+from dashboard.models import Rep, Stat, Event, FunctionalArea
 
 PROJECT_PATH = realpath(join(dirname(__file__), '../../../'))
 
 BASE_URL = 'https://reps.mozilla.org'
 URL = '/api/v1/rep/?format=json&limit=0'
+URL_EVENTS = '/api/v1/event/?format=json&limit=0'
 FILE = PROJECT_PATH + '/reps.json'
 
 class Command(BaseCommand):
@@ -186,3 +187,70 @@ class Command(BaseCommand):
             
             else:
                 self.stdout.write('No need to update yet. Last update: %s' % s[0].date)
+        
+        if 'update_events' in args:
+            
+            new_url = URL_EVENTS
+            count = 0
+            
+            while True:
+                response = requests.get(BASE_URL + new_url, verify=False)
+            
+                if not response.status_code == 200:
+                    raise CommandError('Invalid Response')
+        
+                data = response.json()
+                        
+                # Updating fields from data fetched
+                
+                for d in data['objects']:
+    
+                    try:
+                        # If it's already on the database, do nothing
+                        e = Event.objects.get(uri=d['resource_uri'])
+    
+                    except Event.DoesNotExist:
+                        # If it's not on the database we create it
+                        
+                        # Look for owner
+                        try:
+                            owner = Rep.objects.get(profile_url=d['owner_profile_url'])
+                        except Rep.DoesNotExist:
+                            owner = None
+                        
+                        e = Event(
+                            uri = d['resource_uri'],
+                            name = d['name'],
+                            start = d['start']+'+00:00',
+                            end = d['end']+'+00:00',
+                            url = d['event_url'],
+                            owner = owner,
+                            mozilla_event = d['mozilla_event'],
+                            country = d['country'],
+                            city = d['city'],
+                            estimated_attendance = d['estimated_attendance'],
+                        )
+                        e.save()
+                        
+                        # Add functional areas
+                        if d['categories']:
+                            for cat in d['categories']:
+                                try:
+                                    area = FunctionalArea.objects.get(name=cat['name'])
+                                    e.categories.add(area)
+                                except:
+                                    # If category doesn't exist yet, we create it
+                                    f = FunctionalArea(name=cat['name'])
+                                    f.save()
+                                    
+                                    e.categories.add(f)
+                        
+                        
+                        count = count + 1
+                
+                new_url = data['meta'].get('next', None)
+                
+                if not new_url:
+                    break
+                    
+            self.stdout.write('%i new events added' % count)
