@@ -57,7 +57,7 @@
         ]);
         
         var area_options = {
-          title: 'Events per functional area'
+            title: 'Events per area',
         };
         
         // Events per country
@@ -91,7 +91,7 @@
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.charts.Bar(document.getElementById('chart_div'));
         var thisyear_chart = new google.visualization.LineChart(document.getElementById('thisyear_chart'));
-        var area_chart = new google.visualization.PieChart(document.getElementById('areaschart'));
+        var area_chart = new google.visualization.BarChart(document.getElementById('areaschart'));
         var attendees_chart = new google.charts.Bar(document.getElementById('attendees_chart'));
         var countries = new google.visualization.GeoChart(document.getElementById('chart_countries'));
         var countries_pie = new google.visualization.PieChart(document.getElementById('pie_countries'));
@@ -156,7 +156,7 @@
       
       <h2 id="functional-areas">Functional areas</h2>
       
-      <div id="areaschart" style="width: 900px; height: 500px;"></div>
+      <div id="areaschart" style="width: 900px; height: 1000px;"></div>
       
       
       <table class="dashboard-table responsive on">
