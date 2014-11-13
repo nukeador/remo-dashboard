@@ -2,6 +2,7 @@
 
 import json
 import time
+import calendar
 import datetime
 
 from os.path import dirname, join, realpath, getmtime
@@ -75,6 +76,25 @@ def events(request):
         },
     ]
     
+    # Get all event in the current year
+    year_now = datetime.date.today().year
+    month_now = datetime.date.today().month
+    events_thisyear = events.filter(start__year=year_now)
+    
+    # Stats per month
+    events_lastyear = []
+    for month in range(1, month_now+1):
+        events_lastyear.append({
+            'month': calendar.month_abbr[month], 
+            'total': events_thisyear.filter(start__month=month).count(),
+            'fxos': events_thisyear.filter(start__month=month, categories__name='Firefox OS').count(),
+            'webmaker': events_thisyear.filter(start__month=month, categories__name='Webmaker').count(),
+            'recruiting': events_thisyear.filter(start__month=month, categories__name='Recruiting').count(),
+            'students': events_thisyear.filter(start__month=month, categories__name='Students').count(),
+            'localization': events_thisyear.filter(start__month=month, categories__name='Localization').count(),
+        })
+
+    
     areas = FunctionalArea.objects.filter().order_by('name')
     areas_stats = []
     for a in areas:
@@ -98,19 +118,20 @@ def events(request):
             ]
         })
     
-    attendees = Event.objects.aggregate(Sum('estimated_attendance'))
+    attendees = Event.objects.filter(mozilla_event=True).aggregate(Sum('estimated_attendance'))
+    
     attendees_stats = [
         {
             'year': '2012',
-            'count': Event.objects.filter(start__year='2012').aggregate(Sum('estimated_attendance'))
+            'count': Event.objects.filter(mozilla_event=True, start__year='2012').aggregate(Sum('estimated_attendance'))
         },
         {
             'year': '2013',
-            'count': Event.objects.filter(start__year='2013').aggregate(Sum('estimated_attendance'))
+            'count': Event.objects.filter(mozilla_event=True, start__year='2013').aggregate(Sum('estimated_attendance'))
         },
         {
             'year': '2014',
-            'count': Event.objects.filter(start__year='2014').aggregate(Sum('estimated_attendance'))
+            'count': Event.objects.filter(mozilla_event=True, start__year='2014').aggregate(Sum('estimated_attendance'))
         },
     ]
     
@@ -119,6 +140,7 @@ def events(request):
     
     context = {
         'events': events,
+        'events_lastyear': events_lastyear,
         'areas': areas_stats,
         'events_stats': events_stats,
         'attendees': attendees['estimated_attendance__sum'],

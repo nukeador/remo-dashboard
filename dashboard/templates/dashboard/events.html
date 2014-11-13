@@ -35,6 +35,19 @@
             isStacked: true,
         };
         
+        // Events this year
+        var thisyear_data = google.visualization.arrayToDataTable([
+          ['Month', 'Total', 'Firefox OS', 'Webmaker', 'Recruiting', 'Students', 'Localization'],
+          
+          {% for event in events_lastyear %}
+          ['{{ event.month }}', {{ event.total }}, {{ event.fxos }}, {{ event.webmaker }}, {{ event.recruiting }}, {{ event.students }}, {{ event.localization }}],
+          {% endfor %}
+        ]);
+
+        var thisyear_options = {
+          title: 'This year events'
+        };
+        
         // Events per area
         var area_data = google.visualization.arrayToDataTable([
           ['Area', 'Events'],
@@ -46,17 +59,6 @@
         var area_options = {
           title: 'Events per functional area'
         };
-        
-        /* Areas per year
-        var area2_data = google.visualization.arrayToDataTable([
-          ['Year', {% for a in areas %}'{{ a.name }}',{% endfor %}],
-          ['2013', {% for a in areas %}{{ a.stats.1.count }},{% endfor %}],
-          ['2014', {% for a in areas %}{{ a.stats.2.count }},{% endfor %}],
-        ]);
-
-        var area2_options = {
-          title: 'Area evolution'
-        };*/
         
         // Events per country
         var countries_data = google.visualization.arrayToDataTable([
@@ -88,17 +90,18 @@
 
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.charts.Bar(document.getElementById('chart_div'));
+        var thisyear_chart = new google.visualization.LineChart(document.getElementById('thisyear_chart'));
         var area_chart = new google.visualization.PieChart(document.getElementById('areaschart'));
         var attendees_chart = new google.charts.Bar(document.getElementById('attendees_chart'));
         var countries = new google.visualization.GeoChart(document.getElementById('chart_countries'));
-        //var area2_chart = new google.visualization.LineChart(document.getElementById('areas2chart'));
+        var countries_pie = new google.visualization.PieChart(document.getElementById('pie_countries'));
         
         chart.draw(data, google.charts.Bar.convertOptions(options));
+        thisyear_chart.draw(thisyear_data, thisyear_options);
         area_chart.draw(area_data, area_options);
         attendees_chart.draw(attendees_data, google.charts.Bar.convertOptions(attendees_options));
         countries.draw(countries_data, countries_options);
-        //area2_chart.draw(area2_data, area2_options);
-
+        countries_pie.draw(countries_data, countries_options);
       }
     </script>
 
@@ -112,7 +115,7 @@
     <h1 id="title">Events Dashboard</h1>
     
     <div class="large-12 columns">
-      <p class="center"><a href="#events-number">Number of events</a> - <a href="#functional-areas">Functional areas</a> - <a href="#attendees">Attendees</a> - <a href="#countries">Countries</a></p>
+      <p class="center"><a href="#events-number">Number of events</a> - <a href="#functional-areas">Functional areas</a> - <a href="#attendees">Attendance reached</a> - <a href="#countries">Countries</a></p>
     </div>
     
     <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
@@ -142,6 +145,10 @@
             {% endfor %}
             </tbody>
       </table>
+      
+      <h2>This year</h2>
+      
+      <div id="thisyear_chart" style="width: 900px; height: 500px;"></div>
     
     </div>
     
@@ -179,7 +186,9 @@
     
     <div class="large-12 columns">
       
-      <h2 id="attendees">Attendees</h2>
+      <h2 id="attendees">Attendance reached</h2>
+      
+      <p><em>Just for events organised by Mozilla</em></p>
       
       <p>Total number: {{ attendees }}</p>
       
@@ -208,6 +217,8 @@
       <h2 id="countries">Countries</h2>
       
       <div id="chart_countries" style="width: 900px; height: 500px;"></div>
+      
+      <div id="pie_countries" style="width: 900px; height: 500px;"></div>
 
       <table class="dashboard-table responsive on">
           <thead>
