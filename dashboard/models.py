@@ -17,6 +17,14 @@ class Goal(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+    
+class Metric(models.Model):
+    """Metrics."""
+    name = models.CharField(max_length=100, unique=True)
+    
+    def __unicode__(self):
+        return self.name
 
 
 class Rep(models.Model):
@@ -103,9 +111,18 @@ class Event(models.Model):
     estimated_attendance = models.IntegerField()
     categories = models.ManyToManyField(FunctionalArea)
     goals = models.ManyToManyField(Goal, blank=True, null=True)
+    metrics = models.ManyToManyField(Metric, through='EventMetric')
     
     def __unicode__(self):
         return self.name
+    
+
+class EventMetric(models.Model):
+    """ Event metrics """
+    event = models.ForeignKey(Event)
+    metric = models.ForeignKey(Metric)
+    expected_outcome = models.IntegerField()
+    outcome = models.IntegerField(null=True, blank=True)
 
 
 class Stat(models.Model):

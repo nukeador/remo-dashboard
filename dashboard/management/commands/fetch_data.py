@@ -8,7 +8,7 @@ from os.path import dirname, join, realpath
 from django.utils import timezone
 from django.core.management.base import BaseCommand, CommandError
 
-from dashboard.models import Rep, Stat, Event, FunctionalArea, Goal
+from dashboard.models import Rep, Stat, Event, FunctionalArea, Goal, Metric, EventMetric
 
 PROJECT_PATH = realpath(join(dirname(__file__), '../../../'))
 
@@ -223,6 +223,40 @@ class Command(BaseCommand):
                                         g.save()
                                         
                                         e.goals.add(g)
+                        
+                        # If we requested metrics update
+                        if 'metrics' in args:
+                            # Update metrics
+                            if d['metrics']:
+                                for metric in d['metrics']:
+                                    
+                                    try:
+                                        m = Metric.objects.get(name=metric['metric']['name'])
+                                    except Metric.DoesNotExist:
+                                        # If metric doesn't exist yet, we create it
+                                        m = Metric(name=metric['metric']['name'])
+                                        m.save()
+                                        
+                                    try:
+                                        # If that metric alredy exists for this event, update it
+                                        event_metric = EventMetric.objects.get(metric=m, event=e)
+                                        
+                                        if 'outcome' in metric:
+                                            event_metric.outcome = metric['outcome']
+
+                                        if 'expected_outcome' in metric:
+                                            event_metric.expected_outcome = metric['expected_outcome']
+                                        
+                                        event_metric.save()
+                                        
+                                    except EventMetric.DoesNotExist:
+                                        # If it's a new metric for this event, create it
+                                        if 'outcome' in metric:
+                                            event_metric = EventMetric(metric=m, event=e, expected_outcome=metric['expected_outcome'], outcome=metric['outcome'])
+                                            event_metric.save()
+                                        elif 'expected_outcome' in metric:
+                                            event_metric = EventMetric(metric=m, event=e, expected_outcome=metric['expected_outcome'])
+                                            event_metric.save()
     
                     except Event.DoesNotExist:
                         # If it's not on the database we create it
@@ -273,6 +307,37 @@ class Command(BaseCommand):
                                     
                                     e.goals.add(g)
                         
+                        # Update metrics
+                        if d['metrics']:
+                            for metric in d['metrics']:
+                                
+                                try:
+                                    m = Metric.objects.get(name=metric['metric']['name'])
+                                except Metric.DoesNotExist:
+                                    # If metric doesn't exist yet, we create it
+                                    m = Metric(name=metric['metric']['name'])
+                                    m.save()
+                                    
+                                try:
+                                    # If that metric alredy exists for this event, update it
+                                    event_metric = EventMetric.objects.get(metric=m, event=e)
+                                    
+                                    if 'outcome' in metric:
+                                        event_metric.outcome = metric['outcome']
+
+                                    if 'expected_outcome' in metric:
+                                        event_metric.expected_outcome = metric['expected_outcome']
+                                    
+                                    event_metric.save()
+                                    
+                                except EventMetric.DoesNotExist:
+                                    # If it's a new metric for this event, create it
+                                    if 'outcome' in metric:
+                                        event_metric = EventMetric(metric=m, event=e, expected_outcome=metric['expected_outcome'], outcome=metric['outcome'])
+                                        event_metric.save()
+                                    elif 'expected_outcome' in metric:
+                                        event_metric = EventMetric(metric=m, event=e, expected_outcome=metric['expected_outcome'])
+                                        event_metric.save()
                         
                         count = count + 1
                 

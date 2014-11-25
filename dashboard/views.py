@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.db.models import F, Count, Sum
 
-from dashboard.models import Rep, Stat, Event, FunctionalArea, Goal
+from dashboard.models import Rep, Stat, Event, FunctionalArea, Goal, Metric, EventMetric
 
 PROJECT_PATH = realpath(join(dirname(__file__), '..'))
 FILE = PROJECT_PATH + '/reps.json'
@@ -140,6 +140,17 @@ def events(request):
                 },
             ]
         })
+        
+    metrics = Metric.objects.filter().order_by('name')
+    
+    metrics_stats = []
+    for m in metrics:
+        metrics_stats.append({
+            'name' : m.name,
+            'expected_outcome' : EventMetric.objects.filter(metric=m).aggregate(Sum('expected_outcome')),
+            'outcome' : EventMetric.objects.filter(metric=m).aggregate(Sum('outcome')),
+        })
+    
     
     attendees = Event.objects.filter(mozilla_event=True).aggregate(Sum('estimated_attendance'))
     
@@ -166,6 +177,7 @@ def events(request):
         'events_lastyear': events_lastyear,
         'areas': areas_stats,
         'goals': goals_stats,
+        'metrics': metrics_stats,
         'events_stats': events_stats,
         'attendees': attendees['estimated_attendance__sum'],
         'attendees_stats': attendees_stats,

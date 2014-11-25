@@ -129,7 +129,7 @@
     <h1 id="title">Events Dashboard</h1>
     
     <div class="large-12 columns">
-      <p class="center"><a href="#events-number">Number of events</a> - <a href="#goals">Goals</a> - <a href="#functional-areas">Functional areas</a> - <a href="#attendees">Attendance reached</a> - <a href="#countries">Countries</a></p>
+      <p class="center"><a href="#events-number">Number of events</a> - <a href="#goals">Goals</a> - <a href="#functional-areas">Functional areas</a> - <a href="#attendees">Attendance reached</a> - <a href="#metrics">Metrics</a> - <a href="#countries">Countries</a></p>
     </div>
     
     <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
@@ -253,6 +253,30 @@
             </tbody>
       </table>
       
+    </div>
+    
+    <div class="large-12 columns">
+      
+      <h2 id="metrics">Metrics</h2>
+      
+      <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Metric</th>
+              <th class="dashboard-clickable type-int">Expected outcome</th>
+              <th class="dashboard-clickable type-int">Outcome</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for m in metrics %}
+            <tr>
+              <td>{{ m.name }}</td>
+              <td>{{ m.expected_outcome.expected_outcome__sum }}</td>
+              <td>{{ m.outcome.outcome__sum }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+      </table>
     </div>
     
     <div id="dashboard-br-my-block" class="large-12 columns">
