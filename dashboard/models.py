@@ -9,6 +9,14 @@ class FunctionalArea(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+    
+class Goal(models.Model):
+    """Global goals."""
+    name = models.CharField(max_length=100, unique=True)
+    
+    def __unicode__(self):
+        return self.name
 
 
 class Rep(models.Model):
@@ -94,6 +102,7 @@ class Event(models.Model):
     city = models.CharField(max_length=100)
     estimated_attendance = models.IntegerField()
     categories = models.ManyToManyField(FunctionalArea)
+    goals = models.ManyToManyField(Goal, blank=True, null=True)
     
     def __unicode__(self):
         return self.name

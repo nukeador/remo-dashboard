@@ -8,7 +8,7 @@ from os.path import dirname, join, realpath
 from django.utils import timezone
 from django.core.management.base import BaseCommand, CommandError
 
-from dashboard.models import Rep, Stat, Event, FunctionalArea
+from dashboard.models import Rep, Stat, Event, FunctionalArea, Goal
 
 PROJECT_PATH = realpath(join(dirname(__file__), '../../../'))
 
@@ -208,6 +208,21 @@ class Command(BaseCommand):
                     try:
                         # If it's already on the database, do nothing
                         e = Event.objects.get(uri=d['resource_uri'])
+                        
+                        # If we requested goals update
+                        if 'goals' in args:
+                            # Update goals
+                            if d['goals']:
+                                for goal in d['goals']:
+                                    try:
+                                        goal = Goal.objects.get(name=goal['name'])
+                                        e.goals.add(goal)
+                                    except:
+                                        # If goal doesn't exist yet, we create it
+                                        g = Goal(name=goal['name'])
+                                        g.save()
+                                        
+                                        e.goals.add(g)
     
                     except Event.DoesNotExist:
                         # If it's not on the database we create it
@@ -244,6 +259,19 @@ class Command(BaseCommand):
                                     f.save()
                                     
                                     e.categories.add(f)
+                        
+                        # Add goals
+                        if d['goals']:
+                            for goal in d['goals']:
+                                try:
+                                    goal = Goal.objects.get(name=goal['name'])
+                                    e.goals.add(goal)
+                                except:
+                                    # If category doesn't exist yet, we create it
+                                    g = Goal(name=goal['name'])
+                                    g.save()
+                                    
+                                    e.goals.add(g)
                         
                         
                         count = count + 1

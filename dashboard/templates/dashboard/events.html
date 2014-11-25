@@ -60,6 +60,18 @@
             title: 'Events per area',
         };
         
+        // Events per goal
+        var goal_data = google.visualization.arrayToDataTable([
+          ['Goal', 'Events'],
+          {% for g in goals %}
+            ['{{ g.name }}', {{ g.count }}],
+          {% endfor %}
+        ]);
+        
+        var goal_options = {
+            title: 'Goals per area',
+        };
+        
         // Events per country
         var countries_data = google.visualization.arrayToDataTable([
           ['Country', 'Events'],
@@ -92,6 +104,7 @@
         var chart = new google.charts.Bar(document.getElementById('chart_div'));
         var thisyear_chart = new google.visualization.LineChart(document.getElementById('thisyear_chart'));
         var area_chart = new google.visualization.BarChart(document.getElementById('areaschart'));
+        var goal_chart = new google.charts.Bar(document.getElementById('goalschart'));
         var attendees_chart = new google.charts.Bar(document.getElementById('attendees_chart'));
         var countries = new google.visualization.GeoChart(document.getElementById('chart_countries'));
         var countries_pie = new google.visualization.PieChart(document.getElementById('pie_countries'));
@@ -99,6 +112,7 @@
         chart.draw(data, google.charts.Bar.convertOptions(options));
         thisyear_chart.draw(thisyear_data, thisyear_options);
         area_chart.draw(area_data, area_options);
+        goal_chart.draw(goal_data, goal_options);
         attendees_chart.draw(attendees_data, google.charts.Bar.convertOptions(attendees_options));
         countries.draw(countries_data, countries_options);
         countries_pie.draw(countries_data, countries_options);
@@ -115,7 +129,7 @@
     <h1 id="title">Events Dashboard</h1>
     
     <div class="large-12 columns">
-      <p class="center"><a href="#events-number">Number of events</a> - <a href="#functional-areas">Functional areas</a> - <a href="#attendees">Attendance reached</a> - <a href="#countries">Countries</a></p>
+      <p class="center"><a href="#events-number">Number of events</a> - <a href="#goals">Goals</a> - <a href="#functional-areas">Functional areas</a> - <a href="#attendees">Attendance reached</a> - <a href="#countries">Countries</a></p>
     </div>
     
     <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
@@ -150,6 +164,34 @@
       
       <div id="thisyear_chart" style="width: 900px; height: 500px;"></div>
     
+    </div>
+    
+    <div class="large-12 columns">
+      
+      <h2 id="goals">Goals</h2>
+      
+      <div id="goalschart" style="width: 900px; height: 500px;"></div>
+      
+      
+      <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Goal</th>
+              <th class="dashboard-clickable type-int">Total</th>
+              <th class="dashboard-clickable type-int">2014</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for g in goals %}
+            <tr>
+                <td>{{ g.name }}</a></td>
+                <td>{{ g.count }}</td>
+                <td>{{ g.stats.2.count }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+      </table>
+      
     </div>
     
     <div class="large-12 columns">

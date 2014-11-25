@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from dashboard.models import Rep, Stat, Event, FunctionalArea
+from dashboard.models import Rep, Stat, Event, FunctionalArea, Goal
 
 class RepAdmin(admin.ModelAdmin):
     model = Rep
@@ -19,3 +19,4 @@ admin.site.register(Rep, RepAdmin)
 admin.site.register(Stat)
 admin.site.register(Event, EventAdmin)
 admin.site.register(FunctionalArea)
+admin.site.register(Goal)
