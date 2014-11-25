@@ -35,7 +35,7 @@ hooks:
     - python manage.py migrate --noinput
     - python manage.py fetch_data init_mentors
     - python manage.py fetch_data update
-    - python manage.py fetch_data update_events
+    - python manage.py fetch_data update_events goals metrics
 
 framework:
   type: python
@@ -44,4 +44,4 @@ framework:
   
 cron:
   - "* */6 * * * python $HOME/manage.py fetch_data update"
-  - "0 0 * * * python $HOME/manage.py fetch_data update_events"
+  - "0 0 * * * python $HOME/manage.py fetch_data update_events goals metrics"
