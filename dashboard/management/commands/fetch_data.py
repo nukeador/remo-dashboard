@@ -206,8 +206,14 @@ class Command(BaseCommand):
                 for d in data['objects']:
     
                     try:
-                        # If it's already on the database, do nothing
+                        # If it's already on the database, do some updates
                         e = Event.objects.get(uri=d['resource_uri'])
+                        
+                        # Update actual_attendance and bug/swag numbers
+                        e.actual_attendance = d['actual_attendance']
+                        e.budget_bug_id = d['budget_bug_id']
+                        e.swag_bug_id = d['swag_bug_id']
+                        e.save()
                         
                         # If we requested goals update
                         if 'goals' in args:
@@ -278,6 +284,9 @@ class Command(BaseCommand):
                             country = d['country'],
                             city = d['city'],
                             estimated_attendance = d['estimated_attendance'],
+                            actual_attendance = d['actual_attendance'],
+                            budget_bug_id = d['budget_bug_id'],
+                            swag_bug_id = d['swag_bug_id'],
                         )
                         e.save()
                         
