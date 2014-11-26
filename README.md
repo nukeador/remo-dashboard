@@ -33,14 +33,16 @@ Create a folfer for database and init it:
     $ python manage.py makemigrations
     $ python manage.py migrate
     
-Fetch the initial profile data, first mentors, then the rest:
+Fetch the initial profile data, first mentors, then profiles and then events:
     
     $ python manage.py fetch_data init_mentors
     $ python manage.py fetch_data update
+    $ python manage.py fetch_data update_events goals metrics
     
 You can set a cron to update this data daily:
 
     $ python manage.py fetch_data update
+    $ python manage.py fetch_data update_events goals metrics
 
 Run the testserver
 
