@@ -129,7 +129,7 @@
     <h1 id="title">Events Dashboard</h1>
     
     <div class="large-12 columns">
-      <p class="center"><a href="#events-number">Number of events</a> - <a href="#goals">Goals</a> - <a href="#functional-areas">Functional areas</a> - <a href="#attendees">Attendance reached</a> - <a href="#metrics">Metrics</a> - <a href="#countries">Countries</a></p>
+      <p class="center"><a href="#events-number">Number of events</a> - <a href="#goals">Goals</a> - <a href="#functional-areas">Functional areas</a> - <a href="#attendees">Attendance reached</a> - <a href="#metrics">Metrics</a> - <a href="#countries">Countries</a> - <a href="#need-metrics">Need metrics</a></p>
     </div>
     
     <div id="dashboard-continuous-reports-mentees-block" class="large-12 columns">
@@ -305,6 +305,36 @@
           </tbody>
         </table>
       
+    </div>
+    
+    <div class="large-12 columns">
+        <h2 id="need-metrics">Need post event metrics ({{ need_metrics|length }})</h2>
+        
+        <p>Only for events after Jan. 2014 and today.</p>
+        
+        <table class="dashboard-table responsive on">
+          <thead>
+            <tr>
+              <th class="dashboard-clickable type-string">Event</th>
+              <th class="dashboard-clickable type-string">Owner</th>
+              <th class="dashboard-clickable type-string">Date</th>
+              <th class="dashboard-clickable type-string">Budget</th>
+              <th class="dashboard-clickable type-string">Country</th>
+            </tr>
+          </thead>
+          <tbody id="table-search-list">
+            {% for e in need_metrics %}
+            <tr>
+              <td><a href="{{ e.url }}">{{ e.name }}</a></td>
+              <td><a href="{{ e.owner.profile_url }}">{{ e.owner }}</a></td>
+              <td>{{ e.start|date }}</td>
+              <td>{% if e.budget_bug_id %}<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{ e.budget_bug_id }}">Yes</a>{% else %}No{% endif %}</td>
+              <td>{{ e.country }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+      </table>
+        
     </div>
     
   </div>

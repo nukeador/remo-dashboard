@@ -172,6 +172,9 @@ def events(request):
     
     countries = Event.objects.values('country').annotate(Count("id")).order_by()
     
+    # Events that haven't filled post-event metrics, starting in 2014 and not in the future
+    need_metrics = Event.objects.filter(actual_attendance=None, start__gte=datetime.datetime(2014, 1, 1, 0, 0, 0, 0), start__lt=datetime.datetime.now()).order_by('start')
+    
     context = {
         'events': events,
         'events_lastyear': events_lastyear,
@@ -182,6 +185,7 @@ def events(request):
         'attendees': attendees['estimated_attendance__sum'],
         'attendees_stats': attendees_stats,
         'countries': countries,
+        'need_metrics': need_metrics,
     }
     
     return render(request, 'dashboard/events.html', context)
