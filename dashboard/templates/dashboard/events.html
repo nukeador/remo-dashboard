@@ -328,7 +328,7 @@
               <td><a href="{{ e.url }}">{{ e.name }}</a></td>
               <td><a href="{{ e.owner.profile_url }}">{{ e.owner }}</a></td>
               <td>{{ e.start|date }}</td>
-              <td>{% if e.budget_bug_id %}<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{ e.budget_bug_id }}">Yes</a>{% else %}No{% endif %}</td>
+              <td>{% if e.budget_bug_id %}<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{ e.budget_bug_id }}">{{ e.budget_bug_id }}</a>{% else %}No{% endif %}</td>
               <td>{{ e.country }}</td>
             </tr>
             {% endfor %}
