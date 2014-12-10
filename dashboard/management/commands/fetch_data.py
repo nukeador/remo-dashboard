@@ -15,7 +15,7 @@ PROJECT_PATH = realpath(join(dirname(__file__), '../../../'))
 BASE_URL = 'https://reps.mozilla.org'
 URL = '/api/v1/rep/?format=json&limit=0'
 URL_EVENTS = '/api/v1/event/?format=json&limit=0'
-FILE = PROJECT_PATH + '/reps.json'
+
 
 class Command(BaseCommand):
     args = '<init_mentors updte>'
@@ -99,10 +99,6 @@ class Command(BaseCommand):
                     raise CommandError('Invalid Response')
         
                 data = response.json()
-                
-                # to local file
-                with open(FILE, "w") as outfile:
-                    json.dump(data, outfile)
                 
                 # to database
                 reps = Rep.objects.filter(deleted=False).order_by('uri')
