@@ -16,7 +16,7 @@ class MetricInline(admin.TabularInline):
 class EventAdmin(admin.ModelAdmin):
     model = Event
     list_display = ('name', 'owner', 'start', 'country', 'city', 'mozilla_event')
-    list_filter = ['mozilla_event', 'start', 'categories', 'country']
+    list_filter = ['mozilla_event', 'deleted', 'start', 'categories', 'country']
     search_fields = ['name', 'country', 'city']
     inlines = (MetricInline,)
     

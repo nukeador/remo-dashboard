@@ -54,7 +54,7 @@ def home(request):
 
 def events(request):
     
-    events = Event.objects.all()
+    events = Event.objects.filter(deleted=False)
     events_stats = [
         {
             'year': '2012',
@@ -98,22 +98,22 @@ def events(request):
     areas = FunctionalArea.objects.filter().order_by('name')
     areas_stats = []
     for a in areas:
-        events_count = Event.objects.filter(categories=a).count()
+        events_count = Event.objects.filter(deleted=False, categories=a).count()
         areas_stats.append({
             'name': a.name,
             'count': events_count,
             'stats': [
                 {
                     'year': '2012',
-                    'count': Event.objects.filter(categories=a, start__year='2012').count()
+                    'count': Event.objects.filter(deleted=False, categories=a, start__year='2012').count()
                 },
                 {
                     'year': '2013',
-                    'count': Event.objects.filter(categories=a, start__year='2013').count()
+                    'count': Event.objects.filter(deleted=False, categories=a, start__year='2013').count()
                 },
                 {
                     'year': '2014',
-                    'count': Event.objects.filter(categories=a, start__year='2014').count()
+                    'count': Event.objects.filter(deleted=False, categories=a, start__year='2014').count()
                 },
             ]
         })
@@ -121,22 +121,22 @@ def events(request):
     goals = Goal.objects.filter().order_by('name')
     goals_stats = []
     for g in goals:
-        events_count = Event.objects.filter(goals=g).count()
+        events_count = Event.objects.filter(deleted=False, goals=g).count()
         goals_stats.append({
             'name': g.name,
             'count': events_count,
             'stats': [
                 {
                     'year': '2012',
-                    'count': Event.objects.filter(goals=g, start__year='2012').count()
+                    'count': Event.objects.filter(deleted=False, goals=g, start__year='2012').count()
                 },
                 {
                     'year': '2013',
-                    'count': Event.objects.filter(goals=g, start__year='2013').count()
+                    'count': Event.objects.filter(deleted=False, goals=g, start__year='2013').count()
                 },
                 {
                     'year': '2014',
-                    'count': Event.objects.filter(goals=g, start__year='2014').count()
+                    'count': Event.objects.filter(deleted=False, goals=g, start__year='2014').count()
                 },
             ]
         })
@@ -152,28 +152,28 @@ def events(request):
         })
     
     
-    attendees = Event.objects.filter(mozilla_event=True).aggregate(Sum('estimated_attendance'))
+    attendees = Event.objects.filter(deleted=False, mozilla_event=True).aggregate(Sum('estimated_attendance'))
     
     attendees_stats = [
         {
             'year': '2012',
-            'count': Event.objects.filter(mozilla_event=True, start__year='2012').aggregate(Sum('estimated_attendance'))
+            'count': Event.objects.filter(deleted=False, mozilla_event=True, start__year='2012').aggregate(Sum('estimated_attendance'))
         },
         {
             'year': '2013',
-            'count': Event.objects.filter(mozilla_event=True, start__year='2013').aggregate(Sum('estimated_attendance'))
+            'count': Event.objects.filter(deleted=False, mozilla_event=True, start__year='2013').aggregate(Sum('estimated_attendance'))
         },
         {
             'year': '2014',
-            'count': Event.objects.filter(mozilla_event=True, start__year='2014').aggregate(Sum('estimated_attendance'))
+            'count': Event.objects.filter(deleted=False, mozilla_event=True, start__year='2014').aggregate(Sum('estimated_attendance'))
         },
     ]
     
     
-    countries = Event.objects.values('country').annotate(Count("id")).order_by()
+    countries = Event.objects.filter(deleted=False).values('country').annotate(Count("id")).order_by()
     
     # Events that haven't filled post-event metrics, starting in Jun 16 2014 and not in the future
-    need_metrics = Event.objects.filter(actual_attendance=None, start__gte=datetime.datetime(2014, 1, 1, 0, 0, 0, 0), start__lt=datetime.datetime.now()).order_by('start')
+    need_metrics = Event.objects.filter(deleted=False, actual_attendance=None, start__gte=datetime.datetime(2014, 6, 16, 0, 0, 0, 0), start__lt=datetime.datetime.now()).order_by('start')
     
     context = {
         'events': events,
@@ -196,10 +196,10 @@ def metrics_challenge(request):
     end_date = datetime.datetime.now() - datetime.timedelta(days=3)
     
     # Get events between Jan. 2014 and today.
-    events = Event.objects.filter(start__gte=datetime.datetime(2014, 1, 1, 0, 0, 0, 0), start__lt=end_date).order_by('start')
+    events = Event.objects.filter(start__gte=datetime.datetime(2014, 6, 16, 0, 0, 0, 0), start__lt=end_date).order_by('start')
     
     # Events that haven't filled post-event metrics.
-    need_metrics = Event.objects.filter(actual_attendance=None, start__gte=datetime.datetime(2014, 1, 1, 0, 0, 0, 0), start__lt=end_date).order_by('start')
+    need_metrics = Event.objects.filter(actual_attendance=None, start__gte=datetime.datetime(2014, 6, 16, 0, 0, 0, 0), start__lt=end_date).order_by('start')
     
     # Percentage of pending events
     pending = 100 - round( need_metrics.count() * 100.0 / events.count(), 2 )

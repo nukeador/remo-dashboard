@@ -193,129 +193,58 @@ class Command(BaseCommand):
             new_url = URL_EVENTS
             count = 0
             
+            events = Event.objects.filter(deleted=False)
+            
+            events_data = []
+            
             while True:
+                # Interate remote data in blocks
                 response = requests.get(BASE_URL + new_url, verify=False)
             
                 if not response.status_code == 200:
                     raise CommandError('Invalid Response')
         
                 data = response.json()
-                        
-                # Updating fields from data fetched
                 
-                for d in data['objects']:
-    
-                    try:
-                        # If it's already on the database, do some updates
-                        e = Event.objects.get(uri=d['resource_uri'])
+                # Store data
+                events_data.extend(data['objects'])
+                
+                new_url = data['meta'].get('next', None)
+                
+                if not new_url:
+                    break
                         
-                        # Update actual_attendance and bug/swag numbers
-                        e.actual_attendance = d['actual_attendance']
-                        e.budget_bug_id = d['budget_bug_id']
-                        e.swag_bug_id = d['swag_bug_id']
-                        e.save()
-                        
-                        # If we requested goals update
-                        if 'goals' in args:
-                            # Update goals
-                            if d['goals']:
-                                for goal in d['goals']:
-                                    try:
-                                        goal = Goal.objects.get(name=goal['name'])
-                                        e.goals.add(goal)
-                                    except:
-                                        # If goal doesn't exist yet, we create it
-                                        g = Goal(name=goal['name'])
-                                        g.save()
-                                        
-                                        e.goals.add(g)
-                        
-                        # If we requested metrics update
-                        if 'metrics' in args:
-                            # Update metrics
-                            if d['metrics']:
-                                for metric in d['metrics']:
-                                    
-                                    try:
-                                        m = Metric.objects.get(name=metric['metric']['name'])
-                                    except Metric.DoesNotExist:
-                                        # If metric doesn't exist yet, we create it
-                                        m = Metric(name=metric['metric']['name'])
-                                        m.save()
-                                        
-                                    try:
-                                        # If that metric alredy exists for this event, update it
-                                        event_metric = EventMetric.objects.get(metric=m, event=e)
-                                        
-                                        if 'outcome' in metric:
-                                            event_metric.outcome = metric['outcome']
+            # Updating fields from data fetched
+            
+            for d in events_data:
 
-                                        if 'expected_outcome' in metric:
-                                            event_metric.expected_outcome = metric['expected_outcome']
-                                        
-                                        event_metric.save()
-                                        
-                                    except EventMetric.DoesNotExist:
-                                        # If it's a new metric for this event, create it
-                                        if 'outcome' in metric:
-                                            event_metric = EventMetric(metric=m, event=e, expected_outcome=metric['expected_outcome'], outcome=metric['outcome'])
-                                            event_metric.save()
-                                        elif 'expected_outcome' in metric:
-                                            event_metric = EventMetric(metric=m, event=e, expected_outcome=metric['expected_outcome'])
-                                            event_metric.save()
-    
-                    except Event.DoesNotExist:
-                        # If it's not on the database we create it
-                        
-                        # Look for owner
-                        try:
-                            owner = Rep.objects.get(profile_url=d['owner_profile_url'])
-                        except Rep.DoesNotExist:
-                            owner = None
-                        
-                        e = Event(
-                            uri = d['resource_uri'],
-                            name = d['name'],
-                            start = d['start']+'+00:00',
-                            end = d['end']+'+00:00',
-                            url = d['event_url'],
-                            owner = owner,
-                            mozilla_event = d['mozilla_event'],
-                            country = d['country'],
-                            city = d['city'],
-                            estimated_attendance = d['estimated_attendance'],
-                            actual_attendance = d['actual_attendance'],
-                            budget_bug_id = d['budget_bug_id'],
-                            swag_bug_id = d['swag_bug_id'],
-                        )
-                        e.save()
-                        
-                        # Add functional areas
-                        if d['categories']:
-                            for cat in d['categories']:
-                                try:
-                                    area = FunctionalArea.objects.get(name=cat['name'])
-                                    e.categories.add(area)
-                                except:
-                                    # If category doesn't exist yet, we create it
-                                    f = FunctionalArea(name=cat['name'])
-                                    f.save()
-                                    
-                                    e.categories.add(f)
-                        
-                        # Add goals
+                try:
+                    # If it's already on the database, do some updates
+                    e = Event.objects.get(uri=d['resource_uri'])
+                    
+                    # Update actual_attendance and bug/swag numbers
+                    e.actual_attendance = d['actual_attendance']
+                    e.budget_bug_id = d['budget_bug_id']
+                    e.swag_bug_id = d['swag_bug_id']
+                    e.save()
+                    
+                    # If we requested goals update
+                    if 'goals' in args:
+                        # Update goals
                         if d['goals']:
                             for goal in d['goals']:
                                 try:
                                     goal = Goal.objects.get(name=goal['name'])
                                     e.goals.add(goal)
                                 except:
-                                    # If category doesn't exist yet, we create it
+                                    # If goal doesn't exist yet, we create it
                                     g = Goal(name=goal['name'])
                                     g.save()
                                     
                                     e.goals.add(g)
-                        
+                    
+                    # If we requested metrics update
+                    if 'metrics' in args:
                         # Update metrics
                         if d['metrics']:
                             for metric in d['metrics']:
@@ -347,12 +276,102 @@ class Command(BaseCommand):
                                     elif 'expected_outcome' in metric:
                                         event_metric = EventMetric(metric=m, event=e, expected_outcome=metric['expected_outcome'])
                                         event_metric.save()
-                        
-                        count = count + 1
+
+                except Event.DoesNotExist:
+                    # If it's not on the database we create it
+                    
+                    # Look for owner
+                    try:
+                        owner = Rep.objects.get(profile_url=d['owner_profile_url'])
+                    except Rep.DoesNotExist:
+                        owner = None
+                    
+                    e = Event(
+                        uri = d['resource_uri'],
+                        name = d['name'],
+                        start = d['start']+'+00:00',
+                        end = d['end']+'+00:00',
+                        url = d['event_url'],
+                        owner = owner,
+                        mozilla_event = d['mozilla_event'],
+                        country = d['country'],
+                        city = d['city'],
+                        estimated_attendance = d['estimated_attendance'],
+                        actual_attendance = d['actual_attendance'],
+                        budget_bug_id = d['budget_bug_id'],
+                        swag_bug_id = d['swag_bug_id'],
+                    )
+                    e.save()
+                    
+                    # Add functional areas
+                    if d['categories']:
+                        for cat in d['categories']:
+                            try:
+                                area = FunctionalArea.objects.get(name=cat['name'])
+                                e.categories.add(area)
+                            except:
+                                # If category doesn't exist yet, we create it
+                                f = FunctionalArea(name=cat['name'])
+                                f.save()
+                                
+                                e.categories.add(f)
+                    
+                    # Add goals
+                    if d['goals']:
+                        for goal in d['goals']:
+                            try:
+                                goal = Goal.objects.get(name=goal['name'])
+                                e.goals.add(goal)
+                            except:
+                                # If category doesn't exist yet, we create it
+                                g = Goal(name=goal['name'])
+                                g.save()
+                                
+                                e.goals.add(g)
+                    
+                    # Update metrics
+                    if d['metrics']:
+                        for metric in d['metrics']:
+                            
+                            try:
+                                m = Metric.objects.get(name=metric['metric']['name'])
+                            except Metric.DoesNotExist:
+                                # If metric doesn't exist yet, we create it
+                                m = Metric(name=metric['metric']['name'])
+                                m.save()
+                                
+                            try:
+                                # If that metric alredy exists for this event, update it
+                                event_metric = EventMetric.objects.get(metric=m, event=e)
+                                
+                                if 'outcome' in metric:
+                                    event_metric.outcome = metric['outcome']
+
+                                if 'expected_outcome' in metric:
+                                    event_metric.expected_outcome = metric['expected_outcome']
+                                
+                                event_metric.save()
+                                
+                            except EventMetric.DoesNotExist:
+                                # If it's a new metric for this event, create it
+                                if 'outcome' in metric:
+                                    event_metric = EventMetric(metric=m, event=e, expected_outcome=metric['expected_outcome'], outcome=metric['outcome'])
+                                    event_metric.save()
+                                elif 'expected_outcome' in metric:
+                                    event_metric = EventMetric(metric=m, event=e, expected_outcome=metric['expected_outcome'])
+                                    event_metric.save()
+                    
+                    count = count + 1
+                    
+            # check if there are events deleted from portal
+            for event in events:
+                if not any(event.uri in d['resource_uri'] for d in events_data):
+                    event.deleted = True
+                else:
+                    event.deleted = False
                 
-                new_url = data['meta'].get('next', None)
+                event.save()
+                            
                 
-                if not new_url:
-                    break
                     
             self.stdout.write('%i new events added' % count)

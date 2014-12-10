@@ -115,6 +115,7 @@ class Event(models.Model):
     categories = models.ManyToManyField(FunctionalArea)
     goals = models.ManyToManyField(Goal, blank=True, null=True)
     metrics = models.ManyToManyField(Metric, through='EventMetric')
+    deleted = models.BooleanField(default=False)
     
     def __unicode__(self):
         return self.name
