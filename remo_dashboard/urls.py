@@ -8,6 +8,5 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^events', 'dashboard.views.events', name='events'),
-    url(r'^metrics-challenge', 'dashboard.views.metrics_challenge', name='metrics-challenge'),
     url(r'^$', 'dashboard.views.home', name='home'),
 )

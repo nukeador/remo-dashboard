@@ -172,9 +172,6 @@ def events(request):
     
     countries = Event.objects.filter(deleted=False).values('country').annotate(Count("id")).order_by()
     
-    # Events that haven't filled post-event metrics, starting in Jun 16 2014 and not in the future
-    need_metrics = Event.objects.filter(deleted=False, actual_attendance=None, start__gte=datetime.datetime(2014, 6, 16, 0, 0, 0, 0), start__lt=datetime.datetime.now()).order_by('start')
-    
     context = {
         'events': events,
         'events_lastyear': events_lastyear,
@@ -185,31 +182,6 @@ def events(request):
         'attendees': attendees['estimated_attendance__sum'],
         'attendees_stats': attendees_stats,
         'countries': countries,
-        'need_metrics': need_metrics,
     }
     
     return render(request, 'dashboard/events.html', context)
-
-def metrics_challenge(request):
-    
-    # We expect events that took place at least 3 days ago to have metrics
-    end_date = datetime.datetime.now() - datetime.timedelta(days=3)
-    
-    # Get events between Jan. 2014 and today.
-    events = Event.objects.filter(start__gte=datetime.datetime(2014, 6, 16, 0, 0, 0, 0), start__lt=end_date).order_by('start')
-    
-    # Events that haven't filled post-event metrics.
-    need_metrics = Event.objects.filter(actual_attendance=None, start__gte=datetime.datetime(2014, 6, 16, 0, 0, 0, 0), start__lt=end_date).order_by('start')
-    
-    # Percentage of pending events
-    pending = 100 - round( need_metrics.count() * 100.0 / events.count(), 2 )
-    
-    
-    context = {
-        'events': events,
-        'need_metrics': need_metrics,
-        'pending': pending,
-        'end_date': end_date,
-    }
-    
-    return render(request, 'dashboard/metrics-challenge.html', context)
